@@ -1,0 +1,204 @@
+import Vue from 'vue';
+import Router from 'vue-router';
+
+Vue.use(Router);
+
+export default new Router({
+    routes: [
+        {
+            path: '/',
+            redirect: '/login',
+        },
+        {
+            path: '/',
+            component: resolve => require(['../components/common/Home.vue'], resolve),
+            meta: { title: '自述文件' },
+            children:[
+                {
+                    path: '/home',
+                    component: resolve => require(['../components/page/Dashboard.vue'], resolve),
+                    meta: { title: '版面首页' }
+                },
+                {
+                    path: '/job-manage',
+                    component: resolve => require(['../components/page/sjg_administrator.vue'], resolve),
+                    meta: { title: '工作管理' }
+                },
+                {
+                    path: '/jobManage',
+                    component: resolve => require(['../components/page/paramTable.vue'], resolve),
+                    meta: { title: '工作审核' }
+                },
+                {
+                    path: '/jobManageShow',
+                    component: resolve => require(['../components/page/sjg_administrator.vue'], resolve),
+                    meta: { title: '工作查看' }
+                },
+                {
+                    path: '/stockInStore',
+                    component: resolve => require(['../components/page/BaseList.vue'], resolve),
+                    meta: { title: '采购入库' }
+                },
+                {
+                    path: '/yieldingInStore',
+                    component: resolve => require(['../components/page/BaseForm.vue'], resolve),
+                    meta: { title: '生产入库' }
+                },
+                {
+                    // 富文本编辑器组件
+                    path: '/returnInStore',
+                    component: resolve => require(['../components/page/VueEditor.vue'], resolve),
+                    meta: { title: '退货入库' }
+                },
+                {
+                    // 图片上传组件
+                    path: '/sellOutStore',
+                    component: resolve => require(['../components/page/Upload.vue'], resolve),
+                    meta: { title: '销售出库' }
+                },
+                {
+                    // vue-schart组件
+                    path: '/getOutStore',
+                    component: resolve => require(['../components/page/BaseCharts.vue'], resolve),
+                    meta: { title: '领料出库' }
+                },
+                {
+                    // 拖拽列表组件
+                    path: '/store-manage',
+                    component: resolve => require(['../components/page/DragList.vue'], resolve),
+                    meta: { title: '仓库管理' }
+                },
+                {
+                    // 仓库查看
+                    path: '/storeView',
+                    component: resolve => require(['../components/page/store/storeConfig.vue'], resolve),
+                    meta: { title: '仓库查看', permission: true }
+                },
+                {
+                    // 仓库配置
+                    path: '/storeConfig',
+                    component: resolve => require(['../components/page/store/storeConfig.vue'], resolve),
+                    meta: { title: '仓库配置', permission: true }
+                },
+                {
+                    // 商品管理
+                    path: '/commodityManage',
+                    component: resolve => require(['../components/page/store/commodityManage.vue'], resolve),
+                    meta: { title: '商品管理', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/logistics-manage',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '物流管理', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/carMonitor',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '车辆监控', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/carManage',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '车辆管理', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/logistics-manage',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '数据统计', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/inputTotal',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '入库统计', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/outputTotal',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '出库统计', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/inputAnalyse',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '入库分析', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/outputAnalyse',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '出库分析', permission: true }
+                },
+                {
+                    // 权限页面
+                    path: '/logistics-manage',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '系统设置', permission: true }
+                },
+                {
+                    // 部门管理
+                    path: '/classManage',
+                    component: resolve => require(['../components/page/setting/classManage.vue'], resolve),
+                    meta: { title: '部门管理', permission: true }
+                },
+                {
+                    // 角色管理
+                    path: '/settingRole',
+                    component: resolve => require(['../components/page/setting/settingRole.vue'], resolve),
+                    meta: { title: '角色管理', permission: true }
+                },
+                {
+                    // 用户管理
+                    path: '/settingUser',
+                    component: resolve => require(['../components/page/setting/settingUser.vue'], resolve),
+                    meta: { title: '用户管理', permission: true }
+                },
+                {
+                    // 供应商管理
+                    path: '/settingSupplier',
+                    component: resolve => require(['../components/page/setting/settingSupplier.vue'], resolve),
+                    meta: { title: '供应商管理', permission: true }
+                },
+                {
+                    // 客户管理
+                    path: '/settingClient',
+                    component: resolve => require(['../components/page/setting/settingClient.vue'], resolve),
+                    meta: { title: '客户管理', permission: true }
+                },
+                {
+                    // 流程管理
+                    path: '/settingFlow',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '流程管理', permission: true }
+                },
+                {
+                    // 菜单设计
+                    path: '/settingMenu',
+                    component: resolve => require(['../components/page/setting/settingMenu.vue'], resolve),
+                    meta: { title: '菜单设计', permission: true }
+                },
+                {
+                    // 参数配置
+                    path: '/settingParam',
+                    component: resolve => require(['../components/page/setting/Tabs.vue'], resolve),
+                    meta: { title: '参数配置', permission: true }
+                },
+                {
+                    // 菜单配置
+                    path: '/process',
+                    component: resolve => require(['../components/page/setting/process.vue'], resolve),
+                    meta: { title: '参数配置', permission: true }
+                },
+            ]
+        },
+        {
+            path: '/login',
+            component: resolve => require(['../components/page/Login.vue'], resolve)
+        }
+    ]
+})

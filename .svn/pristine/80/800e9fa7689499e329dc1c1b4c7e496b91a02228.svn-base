@@ -1,0 +1,374 @@
+<template>
+    <div class="tagWrap f-cb">
+        <div class="tag-index" :class="{'active': isActive('/dashboard')}" @click="routeTo('/dashboard')">首页</div>
+        <div class="tags" ref="tagsContainer">
+            <div class="tag-context-menu" ref="tagsContextMenu" :style="{visibility:tagContextMenuVisible}" v-show="tagContextMenuShow" v-clickoutside="closeContextMenu">
+                <ul class="context-menu-box" style="width:120px;">
+                    <li class="menu-item" @click="closeAll">关闭所有</li>
+                    <li class="menu-item" @click="closeOther">关闭其他</li>
+                    <!-- <li class="menu-item">关闭左侧全部</li>
+                    <li class="menu-item">关闭右侧全部</li> -->
+                </ul>
+            </div>
+            <div class="left-arrow" @click="setTagPosition('right')"><img src="/static/img/left_arrow.png"/></div>
+            <div class="right-arrow" @click="setTagPosition('left')"><img src="/static/img/right_arrow.png"/></div>
+            <div class="tags-scroll" v-resize="resizeTagPosition" ref="tagScroll">
+                <ul class="tags-scroll-inner" ref="tagBox" :style="tagWrapStyle">
+                    <li class="tags-li" v-for="(item,index) in tagsList" :class="{'active': isActive(item.path)}" :key="index" v-oncontextmenu="openContextMenu">
+                        <a href="javascript:;" @click="routeTo(item.path)" class="tags-li-title">
+                            {{item.title}}
+                            <span class="tags-li-icon" @click.stop="closeTags(index)"><i class="el-icon-close"></i></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!--<div class="tags-close-box">
+                <el-dropdown @command="handleTags">
+                    <el-button size="mini" type="primary">
+                        标签选项<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>
+                    </el-button>
+                    <el-dropdown-menu size="small" slot="dropdown">
+                        <el-dropdown-item command="other">关闭其他</el-dropdown-item>
+                        <el-dropdown-item command="all">关闭所有</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+            </div>-->
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                tags:true,
+                tagsList: [],
+                tagScrollLeft:0,
+                tagWrapStyle:{
+                    'margin-left':'0px'
+                },
+                tagContextMenuShow:false,
+                tagContextMenuVisible:'hidden'
+            }
+        },
+        methods: {
+            isActive(path) {
+                return path === this.$route.path;
+            },
+            // 关闭单个标签
+            closeTags(index) {
+                const delItem = this.tagsList.splice(index, 1)[0];
+                const item = this.tagsList[index] ? this.tagsList[index] : this.tagsList[index - 1];
+                if (item) {
+                    delItem.path === this.$route.path && this.$router.push(item.path);
+                    this.$nextTick(()=>{
+                        this.setTagPosition('reduce');
+                    });
+                }else{
+                    this.$router.push('/');
+                    this.tagScrollLeft = 0;
+                };
+            },
+            // 关闭全部标签
+            closeAll(){
+                this.tagsList = [];
+                this.$router.push('/');
+                this.tagScrollLeft = 0;
+                this.closeContextMenu();
+            },
+            // 关闭其他标签
+            closeOther(){
+                const curItem = this.tagsList.filter(item => {
+                    return item.path === this.$route.path;
+                });
+                this.closeContextMenu();
+                this.tagsList = curItem;
+                this.tagScrollLeft = 0;
+            },
+            getTagActiveIndex(route){
+                var i = 0,l = this.tagsList.length;
+                for(;i<l;i++){if(this.tagsList[i].path == route.path){return i;}}
+                return -1;
+            },
+            // 设置标签
+            setTags(route){
+                if(route.path=="/dashboard"){
+                    return false;
+                }
+                const index = this.getTagActiveIndex(route);
+                if(index<0){
+                    this.tagsList.push({
+                        title: route.meta.title,
+                        path: route.path
+                    });
+                    this.$nextTick(()=>{
+                        this.setTagPosition('add');
+                    });
+                }else{
+                    this.setTagPosition(index);
+                }
+            },
+            setTagPosition(d){
+                if(this.$refs.tagScroll && this.$refs.tagBox && this.tagsList.length>0){
+                    var tagBox = this.$refs.tagBox;
+                    var ml = this.tagScrollLeft;//tagBox.style.marginLeft
+                    var ow = this.$refs.tagScroll.offsetWidth;
+                    var pw = tagBox.childNodes[0].offsetWidth;
+                    var iw = pw*this.tagsList.length;
+                    if(iw<=ow){
+                        this.tagScrollLeft = 0;
+                    }else{
+                        if('add' == d){
+                            this.tagScrollLeft = ow - iw;
+                        }
+                        if('reduce' == d){
+                            this.tagScrollLeft = Math.max(this.tagScrollLeft,ow - iw);
+                        }
+                        if('left' == d){//左
+                            this.tagScrollLeft = Math.max(this.tagScrollLeft - pw,ow - iw);
+                        }
+                        if('right' == d){
+                            this.tagScrollLeft = Math.min(this.tagScrollLeft + pw,0);
+                        }
+                        if('resize' == d){
+                            if((iw-Math.abs(this.tagScrollLeft))<ow){
+                                this.tagScrollLeft = ow-iw;
+                            }
+                        }
+                        if(typeof d == 'number'){
+                            //如果右边超出
+                            if(pw*(d+1) > ow-ml){
+                                this.tagScrollLeft = ow-pw*(d+1);
+                            };
+                            //如果左边超出
+                            if(-1*pw*d > ml){
+                                this.tagScrollLeft = -1*pw*d;
+                            }
+                        }
+                    }
+                }
+            },
+            resizeTagPosition(){
+                this.setTagPosition('resize');
+            },
+            openContextMenu(e){
+                var event = event || window.event;
+                event.preventDefault?(event.preventDefault()):(event.returnValue = false);
+                var container = this.$refs.tagsContainer,menu = this.$refs.tagsContextMenu;
+
+                //先显示，用于获取宽度
+                this.tagContextMenuShow = true;
+                var pageX = event.pageX?event.pageX:(event.clientX+(document.body.scrollLeft||document.documentElement.scrollLeft)),
+                    pageY = event.pageY?event.pageY:(event.clientY+(document.body.scrollTop||document.documentElement.scrollTop)),
+                    mw = menu.offsetWidth,
+                    ww = window.innerWidth;
+                
+                var rpx = pageX-237,rpy = pageY-60;
+                if(rpx > (ww - 239 - mw)){
+                    rpx = ww - 239 - mw;
+                }
+                menu.style.left = rpx+'px';
+                menu.style.top = rpy+'px';
+                this.tagContextMenuVisible = 'visible';
+            },
+            closeContextMenu(){
+                this.tagContextMenuShow = false;
+                this.tagContextMenuVisible = 'hidden';
+            },
+            handleTags(command){
+                command === 'other' ? this.closeOther() : this.closeAll();
+            },
+            routeTo(path){
+                this.$router.push(path);
+            }
+        },
+        computed: {
+            showTags() {
+                return this.tagsList.length > 0;
+            }
+        },
+        watch:{
+            $route(newValue, oldValue){
+                this.setTags(newValue);
+            },
+            tagScrollLeft(newValue, oldValue){
+                this.tagWrapStyle = {
+                    'margin-left':newValue+'px'
+                };
+            }
+        },
+        created(){
+            this.setTags(this.$route);
+        }
+    }
+</script>
+
+<style>
+    .tagWrap{
+        position: relative;
+        background: #313131;
+        border-bottom: 4px solid #90c31f;
+        box-shadow: 0 1px 1px #999;
+    }
+    .tags {
+        position: absolute;
+        height: 44px;
+        left: 237px;
+        top: 0;
+        right: 0;
+    }
+    .tags-scroll{
+        position:absolute;
+        left:50px;
+        right:50px;
+        height:44px;
+        height: 100%;
+        overflow: hidden;
+    }
+    .tags .tags-scroll-inner {
+        white-space: nowrap;
+        font-size:0;
+        transition: margin-left .3s linear;
+    }
+    .tags .tag-context-menu .el-menu-item{
+        height:30px;
+        line-height: 30px;
+    }
+    .tags .tag-context-menu{
+        position:absolute;
+        z-index: 100;
+        visibility: hidden;
+    }
+    .tags .context-menu-box{
+        width: 120px;
+        padding: 5px 0;
+        font-family: "微软雅黑";
+        color: #676767; 
+        background: #fff;
+        border:1px solid #b9b9b9;
+        box-shadow: 0 0 2px 2px #0000003b;
+    }
+    .tags .context-menu-box li{
+        padding:0 10px;
+        height:24px;
+        line-height: 24px;
+        cursor: pointer;
+    }
+    .tags .context-menu-box li:hover{
+        background:#dadada;
+    }
+    .tag-index{
+        text-align: center;
+        border-right: 1px solid #101010;
+        border-left: 1px solid #101010;
+        margin-left: 50px;
+        float: left;
+        font-size: 18px;
+        overflow: hidden;
+        cursor: pointer;
+        width: 185px;
+        height: 44px;
+        line-height: 47px;
+        background: #313131;
+        vertical-align: middle;
+        color: #fff;
+    }
+    .tag-index.active{
+        background: #90c31f;
+    }
+    .left-arrow,.right-arrow{
+        position: absolute;
+        z-index: 2;
+        width: 50px;
+        height:44px;
+        line-height: 50px;
+        text-align: center;
+        border-right: 1px solid #101010;
+        cursor: pointer;
+        background: #313131;
+        vertical-align: middle;
+        overflow: hidden;
+    }
+    .left-arrow{
+        left: -2px;
+    }
+    .right-arrow{
+        right: -2px;
+        border-left: 1px solid #101010;
+    }
+    .tags-li {
+        display:inline-block;
+        text-align: center;
+        border-right: 1px solid #101010;
+        font-size: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        width: 140px;
+        height: 44px;
+        line-height: 47px;
+        background: #313131;
+        vertical-align: middle;
+        color: #fff;
+        -webkit-transition: all .3s ease-in;
+        -moz-transition: all .3s ease-in;
+        transition: all .3s ease-in;
+        overflow: hidden;
+    }
+    .tags-li a{
+        display:block;
+        width:100%;
+    }
+
+    .tags-li:not(.active):hover {
+
+    }
+
+    .tags-li.active {
+        color: #fff;
+        background-color: #90c31f;
+    }
+    .tags-li.active .tags-li-icon i{
+        background-color: #fff;
+        color: #90c31f;
+    }
+    .tags-li-title {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-right: 5px;
+        color: #fff;
+    }
+    .tags-li.active .tags-li-title {
+        color: #fff;
+    }
+    .tags-li .tags-li-icon i{
+        background-color: #fff;
+        border-radius: 50%;
+        color: #313131;
+    }
+    .tags-li:not(.active) .tags-li-icon i{
+        background-color: #90c31f;
+        color: #fff;
+    }
+    .tags-close-box {
+        position: absolute;
+        right: 50px;
+        top: 0;
+        box-sizing: border-box;
+        text-align: center;
+        height: 50px;
+        z-index: 10;
+    }
+    .el-dropdown button{
+        height: 44px;
+        border: none;
+        border-radius: 0;
+        background-color: #313131;
+        border-right: 1px solid #101010;
+        border-left: 1px solid #101010;
+    }
+    .el-dropdown button:hover{
+        background-color: #90c31f;
+        border: none;
+    }
+</style>

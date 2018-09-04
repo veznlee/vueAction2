@@ -1,0 +1,468 @@
+<template>
+    <div class="table">
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                    <el-button type="primary" @click="handleAdd()">新增</el-button>
+                </div>
+                <div align="right" class="search-right">
+                    <el-select v-model="listParam.roleId" filterable placeholder="选择角色" @change="search" class="handle-select">
+                        <el-option label="选择角色" value=""></el-option>
+                        <el-option v-for="item in roleList" :key="item.roleId" :label="item.roleName" :value="item.roleId"></el-option>
+                    </el-select>
+                    <el-select v-model="listParam.deptId" filterable  placeholder="选择部门" @change="search" class="handle-select">
+                        <el-option label="选择部门" value=""></el-option>
+                        <el-option v-for="item in departList" :key="item.deptId" :label="item.deptName" :value="item.deptId"></el-option>
+                    </el-select>
+                    <el-input v-model="listParam.condition" placeholder="用户名/真实姓名/电话号码" @keyup.enter.native="search" class="handle-input"></el-input>
+                    <el-button type="primary" @click="search">搜索</el-button>
+                </div>
+            </div>
+            <el-table :data="tableData" border stripe style="width: 100%" v-loading="listLoading" element-loading-text="给我一点时间" class="p-table-center" highlight-current-row>
+                <el-table-column type="index" fixed :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column prop="cname" label="用户名" width="80">
+                </el-table-column>
+                <el-table-column prop="realName" label="真实姓名" width="120">
+                </el-table-column>
+                <el-table-column prop="phone" label="电话" width="120">
+                </el-table-column>
+                <el-table-column prop="roleName" label="角色" min-width="200">
+                </el-table-column>
+                <el-table-column prop="deptName" label="部门" width="150">
+                </el-table-column>
+                <el-table-column align="center" label="状态" width="80">
+                    <template slot-scope="scope">
+                        <el-switch v-model="scope.row.cstatus" @change="statusChange(scope.$index, scope.row)" active-color="#90c31f" inactive-color="#dcdfe6" active-value="2" inactive-value="1"></el-switch>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" align="center" width="230" fixed="right">
+                    <template slot-scope="scope">
+                        <el-button class="danger" size="small" @click="handleAuth(scope.$index, scope.row)">权限配置</el-button>
+                        <el-button type="success" size="small" plain @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+                        <el-button class="wraning" size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="45%" custom-class="mod-el-dialog" :close-on-click-modal="false">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="100px">
+                <el-row :gutter="10">
+                    <el-col :span="14">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="用户ID">
+                                <el-input v-model="form.guid" disabled placeholder="用户ID自动生成"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="10">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="用户名" prop="cname">
+                                <el-input v-model="form.cname"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="真实姓名" prop="realName">
+                                <el-input v-model="form.realName"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="电话" prop="phone" required>
+                                <el-input v-model.number="form.phone" :maxLength="11"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="部门" prop="deptId">
+                                <el-select v-model="form.deptId" placeholder="选择部门" style="width: 100%">
+                                    <el-option v-for="item in departList" :key="item.deptId" :label="item.deptName" :value="item.deptId"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="角色" prop="roleId">
+                                <el-select v-model="form.roleId" placeholder="选择角色" style="width: 100%">
+                                    <el-option v-for="item in roleList" :key="item.roleId" :label="item.roleName" :value="item.roleId"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="密码" prop="password">
+                                <el-input type="password" v-model="form.password" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="确认密码" prop="checkPassword">
+                                <el-input type="password" v-model="form.checkPassword" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="editVisible = false">取 消</el-button>
+                <el-button v-if="dialogStatus=='create'" type="primary" @click="addData">确 定</el-button>
+                <el-button v-else type="primary" @click="updateData">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 权限配置弹出框 -->
+        <el-dialog title="权限配置" :visible.sync="authVisible" width="20%" custom-class="mod-el-dialog" :close-on-click-modal="false">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="80px">
+                <el-tree
+                    ref="tree"
+                    :data="treeData"
+                    show-checkbox
+                    node-key="id"
+                    highlight-current
+                    :props="defaultProps">
+                </el-tree>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="authVisible = false">取 消</el-button>
+                <el-button type="primary" @click="AuthData">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import { tableList, tableAdd, tableUpdate, tableDelete, selectList, statusList, treeList, treeAdd, isNameRepeat} from '../../../api/user'
+    import ElOption from "element-ui/packages/select/src/option";
+    export default {
+        components: {ElOption},
+        data() {
+            return {
+                tableData: [],
+                total: 0,
+                listParam: {
+                    page: 1,
+                    pageSize: 10,
+                    roleId: '',
+                    deptId: '',
+                    condition:''
+                },
+                listLoading: false,
+                dialogStatus: '',
+                formTitle:'',
+                editVisible: false,
+                delVisible: false,
+                authVisible: false,
+                form: {
+                    guid:'',
+                    cname: '',
+                    realName: '',
+                    phone: '',
+                    roleId: '',
+                    deptId: '',
+                    password: ''
+                },
+                roleList:[],
+                departList:[],
+                existParam:{
+                    cname:''
+                },
+                select:{
+                    refSysApp:1
+                },
+                status:{
+                    userId:'',
+                    cstatus:''
+                },
+                treeList:{guid:''},
+                treeSubmit:{
+                    userId:'',
+                    permIds:[]
+                },
+                idx: -1,
+                rules: {
+                    cname: [
+                        { required: true, message: '此字段为必填', trigger: 'blur' },
+                        { validator: this.isExist, trigger: 'blur'},
+                        { max: 32, message: '最多只能输入32位字符', trigger: 'blur' }
+                    ],
+                    realName: [{ required: true, message: '此字段为必填', trigger: 'blur' }],
+                    phone: [{ validator:this.phoneRule, trigger: 'blur' }],
+                    roleId: [{ required: true, message: '此字段为必填', trigger: 'change' }],
+                    deptId: [{ required: true, message: '此字段为必填', trigger: 'change' }],
+                    password: [{ validator:this.validatePass, trigger: 'blur' }],
+                    checkPassword: [{ validator:this.validateCheckPass, trigger: 'blur' }],
+
+                },
+                treeData: [],
+                defaultProps: {
+                    children: 'children',
+                    label: 'name'
+                },
+                historyName:''
+            }
+        },
+        created() {
+            this.getTableData();
+            this.selectData();
+        },
+        computed: {
+        },
+        methods: {
+            // 分页导航
+            handleCurrentChange(val) {
+                this.listParam.page = val;
+                this.getTableData();
+            },
+            handleSizeChange(val) {
+                this.listParam.pageSize = val;
+                this.getTableData()
+            },
+            getTableData() {
+                this.listLoading = true;
+                tableList(this.listParam).then(response => {
+                    if(response.data.code==0){
+                        this.tableData = response.data.data;
+                        this.total = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+            indexMethod(index){
+                return index + (this.listParam.page - 1) * this.listParam.pageSize + 1;
+            },
+            //搜索
+            search() {
+                this.listParam.page=1;
+                this.getTableData();
+            },
+            //表单添加
+            handleAdd(){
+                this.formTitle='添加';
+                this.form={
+                    guid:'',
+                    cname: '',
+                    realName: '',
+                    phone: '',
+                    roleId: '',
+                    deptId: '',
+                    password: '',
+                    checkPassword:''
+                };
+                this.dialogStatus = 'create';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+            },
+            addData(){
+                this.$refs['form'].validate((valid) => {
+                    if(valid){
+                        tableAdd(this.form).then(response => {
+                            if(response.data.code==0){
+                                this.getTableData();
+                                this.editVisible = false;
+                                this.$notify({
+                                    title: '成功',
+                                    message: '创建成功',
+                                    type: 'success',
+                                    duration: 2000
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            //表单编辑
+            handleUpdate(index, row) {
+                this.formTitle='编辑';
+                this.idx = index;
+                this.historyName=row.cname;
+                this.form= {
+                    guid: row.guid,
+                    cname:  row.cname,
+                    realName:  row.realName,
+                    phone:  row.phone,
+                    roleId:  row.roleId,
+                    deptId:  row.deptId,
+                    password: '......',
+                    checkPassword:'......'
+                };
+                this.dialogStatus = 'update';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+            },
+            // 保存编辑
+            updateData() {
+                this.$refs['form'].validate((valid) => {
+                    if (valid) {
+                        if(this.form.password=='......' && this.form.checkPassword=='......'){
+                            this.form.password=''
+                            this.form.checkPassword=''
+                        }
+                        tableUpdate(this.form).then(response => {
+                            if (response.data.code == 0) {
+                                this.getTableData();
+                                this.editVisible = false;
+                                this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                            }
+                        })
+                    }
+                })
+            },
+            //表单删除
+            handleDelete(index, row) {
+                this.idx = index;
+                this.delVisible = true;
+                const item = this.tableData[index];
+                this.delete = {
+                    guid:item.guid,
+                }
+            },
+            // 确定删除
+            deleteRow(){
+                tableDelete(this.delete).then(response => {
+                    if(response.data.code==0){
+                        let delPage=(this.total-1)%this.listParam.pageSize
+                        if(delPage==0){
+                            if(this.listParam.page !=1){
+                                this.listParam.page=this.listParam.page-1
+                            }
+                        }
+                        this.getTableData();
+                        this.$message.success('删除成功');
+                        this.delVisible = false;
+                    }else if(response.data.code==56){
+                        this.$message.error(response.data.msg);
+                    }
+                })
+            },
+            statusChange(index, row){
+                const item = this.tableData[index];
+                this.status = {
+                    userId:item.guid,
+                    cstatus:item.cstatus
+                };
+                statusList(this.status).then(response => {
+                    if(response.data.code==0){
+                        this.getTableData();
+                        this.$message.success('修改成功');
+                    }
+                })
+            },
+            //权限配置
+            handleAuth(index,row){
+                this.authVisible=true;
+                this.idx = index;
+                const item = this.tableData[index];
+                this.treeParam={guid:item.guid}
+                treeList(this.treeParam).then(response =>{
+                    if(response.data.code==0){
+                        this.treeData=response.data.data;
+                        let keys = [];
+                        function array(data) {
+                            for(let i=0; i<data.length; i++){
+                                var key=data[i]
+                                if(key.children){
+                                    array(key.children);
+                                }else{
+                                    if(key.checked==true){
+                                        keys.push(key.id)
+                                    }
+                                }
+                            }
+                        }
+                        array(this.treeData);
+                        this.$refs.tree.setCheckedKeys(keys)
+                    }
+                })
+                this.treeSubmit={
+                    userId:item.guid,
+                    permIds:[]
+                };
+            },
+            AuthData(){
+                this.treeSubmit.permIds=this.$refs.tree.getCheckedKeys().concat(this.$refs.tree.getHalfCheckedKeys())
+                treeAdd(this.treeSubmit).then(response => {
+                    if(response.data.code==0){
+                        this.getTableData();
+                        this.$message.success(`权限配置第 ${this.idx+1} 行成功`);
+                        this.authVisible = false;
+                    }
+                })
+            },
+            selectData(){
+                selectList(this.select).then(response => {
+                    if(response.data.code==0){
+                        this.roleList = response.data.data.role;
+                        this.departList = response.data.data.dept;
+                    }
+                })
+            },
+            validatePass(rule, value, callback){
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.form.checkPassword !== '') {
+                        this.$refs.form.validateField('checkPassword');
+                    }
+                    callback();
+                }
+            },
+            validateCheckPass(rule, value, callback){
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.form.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            },
+            isExist(rule, value, callback){
+                this.existParam.cname=this.form.cname;
+                if(this.historyName==value){
+                    callback();
+                }
+                isNameRepeat(this.existParam).then(response =>{
+                    if(response.data.code==0){
+                        callback();
+                    }else if(response.data.code==100){
+                        callback(new Error('用户名已存在，请重新输入'))
+                    }
+                })
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>

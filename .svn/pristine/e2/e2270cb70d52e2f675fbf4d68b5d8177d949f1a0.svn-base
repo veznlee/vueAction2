@@ -1,0 +1,28 @@
+import axios from 'axios'
+
+// create an axios instance
+const service = axios.create({
+    baseURL: 'http://192.168.1.139:2002'/*process.env.BASE_API*/, // api的base_url
+    timeout: 5000 ,// request timeout
+
+});
+
+service.interceptors.request.use(config => {
+    config.params.accessToken=localStorage.getItem("accessToken");
+    return config
+}, error => {
+    return Promise.reject(error)
+});
+
+service.interceptors.response.use(response => {
+    const res = response.data;
+    if(res.code==99){
+        this.$router.push('/login');
+    }else{
+        return response
+    }
+}, error => {
+    return Promise.reject(error)
+});
+
+export default service

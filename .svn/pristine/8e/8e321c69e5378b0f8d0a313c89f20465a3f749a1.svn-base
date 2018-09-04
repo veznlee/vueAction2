@@ -1,0 +1,45 @@
+import router from '../router';
+import axios from 'axios'
+import { Message } from 'element-ui'
+
+const service = axios.create({
+    baseURL: 'http://192.168.1.139:2002',
+    //baseURL1: 'http://192.168.1.81:8080',
+    baseURL1: 'http://192.168.1.176:8080',
+    timeout: 2000 ,
+});
+
+service.interceptors.request.use(config => {
+    var token = localStorage.getItem("accessToken");
+    let tokenUrl = '?accessToken=' + token;
+    if (config.host == 1)
+        config.url = config.url.replace(config.baseURL, config.baseURL1) + tokenUrl;
+    else
+        config.url += tokenUrl;
+    return config
+}, error => {
+    return Promise.reject(error)
+});
+
+service.interceptors.response.use(response => {
+    if (response.data.code !=0) {
+        Message({
+            message: response.data.msg,
+            type: 'error',
+            duration: 2 * 1000
+        });
+        switch (response.data.code) {
+            case 99:
+                router.replace({
+                    path: '/login'
+                })
+        }
+    }else{
+        return response;
+    }
+},
+error => {
+    return Promise.reject(error)
+});
+
+export default service

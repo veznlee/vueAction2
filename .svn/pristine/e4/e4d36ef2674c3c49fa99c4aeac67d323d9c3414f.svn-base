@@ -1,0 +1,239 @@
+import request from '../../utils/request'
+var baseMixin = {
+    data() {
+        return {
+            Urls: {
+                areaListUrl: '/sysparameters/choseArea',
+            },
+            tableData: [],
+            total: 0,
+            listParam: {
+                page: 1,
+                pageSize: 10,
+                ctype: '1',
+                keyWords: '',
+                condition: ''
+            },
+            listLoading: false,
+            dialogStatus: '',
+            formTitle: '',
+            editVisible: false,
+            delVisible: false,
+            form: {
+                ccode: '',
+                cname: '',
+                ctype: '',
+                cdesc: '',
+                cstatus: 2
+            },
+            idx: -1,
+            proviceList: [],
+            districtList: [],
+            countyList: [],
+            rules: {},
+        }
+    },
+    created() {
+        this.getTableData();
+    },
+    computed: {},
+    methods: {
+        // 分页导航
+        handleCurrentChange(val) {
+            this.listParam.page = val;
+            this.getTableData();
+        },
+        handleSizeChange(val) {
+            this.listParam.pageSize = val;
+            this.getTableData()
+        },
+        getTableData() {
+            this.listLoading = true;
+            request({
+                url: this.Urls.tableList,
+                method: 'get',
+                params: this.listParam
+            }).then(response => {
+                if (response.data.code == 0) {
+                    this.tableData = response.data.data;
+                    this.total = response.data.total;
+                    this.listLoading = false
+                }
+            })
+        },
+        indexMethod(index){
+            return index + (this.listParam.page - 1) * 10 + 1;
+        },
+        //搜索
+        search() {
+            this.getTableData();
+        },
+        resetForm() {
+            this.form = {
+                ccode: '',
+                cname: '',
+                ctype: '1',
+                cdesc: '',
+                cstatus: '2',
+                operator: localStorage.getItem('ms_username'),
+                operatorPhone: localStorage.getItem('ms_userPhone'),
+            }
+        },
+        //表单添加
+        handleAdd(){
+            this.formTitle = '添加';
+            this.resetForm();
+            this.dialogStatus = 'create';
+            this.editVisible = true;
+            this.$nextTick(() => {
+                this.$refs['form'].clearValidate()
+            })
+        },
+        addData(){
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    request({
+                        url: this.Urls.tableAdd,
+                        method: 'post',
+                        params: this.form
+                    }).then(response => {
+                        if (response.data.code == 0) {
+                            this.getTableData();
+                            this.editVisible = false;
+                            this.$notify({
+                                title: '成功',
+                                message: '创建成功',
+                                type: 'success',
+                                duration: 2000
+                            })
+                        }
+                    })
+                }
+            })
+        },
+        //表单编辑
+        handleUpdate(index, row) {
+            this.formTitle = '编辑';
+            this.idx = index;
+            const guid = this.tableData[index].guid;
+            this.form = Object.assign({}, row);
+            this.EditCall(guid);
+            this.dialogStatus = 'update';
+            this.editVisible = true;
+            this.$nextTick(() => {
+                this.$refs['form'].clearValidate()
+            });
+
+        },
+        EditCall(){
+
+        },
+        // 保存编辑
+        updateData() {
+            request({
+                url: this.Urls.tableUpdate,
+                method: 'post',
+                params: this.form
+            }).then(response => {
+                if (response.data.code == 0) {
+                    this.getTableData();
+                    this.editVisible = false;
+                    this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                }
+            })
+        },
+        //表单删除
+        handleDelete(index, row) {
+            this.idx = index;
+            this.delVisible = true;
+            const item = this.tableData[index];
+            this.delete = {
+                guid: item.guid,
+            }
+        },
+        // 确定删除
+        deleteRow(){
+            request({
+                url: this.Urls.tableDelete,
+                method: 'get',
+                params: this.delete
+            }).then(response => {
+                if (response.data.code == 0) {
+                    this.getTableData();
+                    this.$message.success('删除成功');
+                    this.delVisible = false;
+                }
+            })
+        },
+        //状态修改
+        statusChange(index, row){
+            const item = this.tableData[index];
+            this.status = {
+                guid: item.guid,
+                cstatus: item.cstatus
+            };
+            request({
+                url: this.Urls.statusList,
+                method: 'get',
+                params: this.status
+            }).then(response => {
+                if (response.data.code == 0) {
+                    this.getTableData();
+                    this.$message.success('修改成功');
+                }
+            })
+        },
+        //省市区查询
+        getProvice(){
+            request({
+                url: this.Urls.areaListUrl,
+                method: 'get',
+                params: {type: '0'}
+            }).then(response => {
+                this.proviceList = response.data.data;
+            })
+        },
+        getDistrict(value){
+            let obj = {};
+            obj = this.proviceList.find((item) => {
+                return item.id === value;
+            });
+            request({
+                url: this.Urls.areaListUrl,
+                method: 'get',
+                params: {
+                    type: '1',
+                    id: obj.id,
+                }
+            }).then(response => {
+                this.districtList = response.data.data;
+            });
+            this.form.cprovince = obj.id;
+        },
+        getCounty(value){
+            let obj = {};
+            obj = this.districtList.find((item) => {
+                return item.id === value;
+            });
+            request({
+                url: this.Urls.areaListUrl,
+                method: 'get',
+                params: {
+                    type: '2',
+                    id: obj.id
+                }
+            }).then(response => {
+                this.countyList = response.data.data;
+            });
+            this.form.cdistrict = obj.id;
+        },
+        changeValue(value){
+            let obj = {};
+            obj = this.countyList.find((item) => {
+                return item.id === value;
+            });
+            this.form.ccounty = obj.id;
+        },
+    }
+}
+export default baseMixin;

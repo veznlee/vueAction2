@@ -1,0 +1,360 @@
+<template>
+    <div>
+        <el-row>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-green">
+                        <div class="layout-title">
+                            <h4>工作台</h4>
+                        </div>
+                        <div class="layout-content content-green">
+                            <div class="box-title">
+                                <h4>待审核采购单<el-badge class="mark" :value="25" /></h4>
+                                <a href="#" class="more">查看更多>></a>
+                            </div>
+                            <div class="box-content">
+                                <template>
+                                    <el-table
+                                        :data="tableData"
+                                        stripe
+                                        :show-header="showHeader"
+                                        border
+                                        style="width: 100%">
+                                        <el-table-column
+                                            prop="date"
+                                            label="日期"
+                                            width="180">
+                                        </el-table-column>
+                                        <el-table-column
+                                            prop="name"
+                                            label="姓名"
+                                            width="180">
+                                        </el-table-column>
+                                        <el-table-column
+                                            prop="address"
+                                            label="地址">
+                                        </el-table-column>
+                                    </el-table>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-blue">
+                        <div class="layout-title">
+                            <h4>业务监控</h4>
+                        </div>
+                        <div class="layout-content content-blue">
+                            <el-row :gutter="30">
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>销售监控</h4>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="head">
+                                                <div class="headTitle">待处理单<el-badge class="mark" :value="25" /></div>
+                                                <div class="line"></div>
+                                                <div class="headTitle">今日已处理单<el-badge class="mark" :value="8" /></div>
+                                            </div>
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>销售单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>销售监控</h4>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="head">
+                                                <div class="headTitle">待处理单<el-badge class="mark" :value="25" /></div>
+                                                <div class="line"></div>
+                                                <div class="headTitle">今日已处理单<el-badge class="mark" :value="8" /></div>
+                                            </div>
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>销售单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>销售监控</h4>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="head">
+                                                <div class="headTitle">待处理单<el-badge class="mark" :value="25" /></div>
+                                                <div class="line"></div>
+                                                <div class="headTitle">今日已处理单<el-badge class="mark" :value="8" /></div>
+                                            </div>
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>销售单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple" style="margin-top: 30px">
+                                        <div class="box-title">
+                                            <h4>销售监控</h4>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="head">
+                                                <div class="headTitle">待处理单<el-badge class="mark" :value="25" /></div>
+                                                <div class="line"></div>
+                                                <div class="headTitle">今日已处理单<el-badge class="mark" :value="8" /></div>
+                                            </div>
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>销售单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="16">
+                                    <div class="grid-content bg-purple" style="margin-top: 30px">
+                                        <div class="box-title">
+                                            <h4>销售监控</h4>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="head">
+                                                <div class="headTitle">待处理单<el-badge class="mark" :value="25" /></div>
+                                                <div class="line"></div>
+                                                <div class="headTitle">今日已处理单<el-badge class="mark" :value="8" /></div>
+                                            </div>
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>销售单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <el-row :gutter="30">
+                        <el-col :span="12">
+                            <div class="layout-content layout-independent content-orange">
+                                <div class="box-title">
+                                    <h4>商品库存预警<span class="goods-count">共20种商品</span></h4>
+                                    <a href="#" class="more">查看更多>></a>
+                                </div>
+                                <div class="box-content">
+                                    <div class="goods-box">
+                                        <el-row :gutter="15">
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="layout-content layout-independent content-orange">
+                                <div class="box-title">
+                                    <h4>商品过期预警<span class="goods-count">共20种商品</span></h4>
+                                    <a href="#" class="more">查看更多>></a>
+                                </div>
+                                <div class="box-content">
+                                    <div class="goods-box">
+                                        <el-row :gutter="15">
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                showHeader:false,
+                tableData: [{
+                    date: '2016-05-02',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-04',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1517 弄'
+                }, {
+                    date: '2016-05-01',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1519 弄'
+                }, {
+                    date: '2016-05-03',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1516 弄'
+                }]
+            }
+        },
+        methods:{
+        },
+        created:function(){
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>

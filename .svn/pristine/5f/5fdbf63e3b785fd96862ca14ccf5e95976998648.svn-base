@@ -1,0 +1,274 @@
+<template>
+    <div class="table">
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item><i class="el-icon-tickets"></i> 部门管理</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                    <el-button type="primary" icon="add" @click="handleAdd()">新增</el-button>
+                </div>
+                <div align="right" class="search-right">
+                    <el-input v-model="listParam.condition" placeholder="部门编码/部门名称" @keyup.enter.native="search" class="handle-input mr10"></el-input>
+                    <el-select v-model="listParam.userId" placeholder="请选择负责人" class="handle-select">
+                        <el-option v-for="item in userList" :key="item.userId" :label="item.userName" :value="item.userId"></el-option>
+                    </el-select>
+                    <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                </div>
+            </div>
+            <el-table :data="tableData" stripe border style="width: 100%" v-loading="listLoading" element-loading-text="给我一点时间">
+                <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column prop="ccode" label="部门编码" width="180">
+                </el-table-column>
+                <el-table-column prop="cname" label="部门名称" width="150">
+                </el-table-column>
+                <el-table-column prop="userName" label="负责人" width="120">
+                </el-table-column>
+                <el-table-column prop="phone" label="负责人电话" width="150">
+                </el-table-column>
+                <el-table-column prop="cdesc" label="职能描述">
+                </el-table-column>
+                <el-table-column label="操作" align="center" width="180">
+                    <template slot-scope="scope">
+                        <el-button size="small" type="success" plain @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="40%" custom-class="mod-el-dialog">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="100px">
+                <el-form-item label="部门编码" prop="ccode">
+                    <el-input v-model="form.ccode" placeholder="编码自动生成" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="部门名称" prop="cname">
+                    <el-input v-model="form.cname"></el-input>
+                </el-form-item>
+                <el-form-item label="部门性质" prop="">
+                    <el-input></el-input>
+                </el-form-item>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="负责人" prop="userId">
+                                <el-select v-model="form.userId" placeholder="请选择负责人" @change="changeValue">
+                                    <el-option v-for="item in userFormList" :key="item.userId" :label="item.userName" :value="item.userId"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div class="grid-content bg-purple">
+                            <el-form-item label="负责人电话" prop="phone">
+                                <el-input v-model="form.phone"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-col>
+                </el-row>
+                <el-form-item label="职能描述">
+                    <el-input type="textarea" v-model="form.cdesc"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="editVisible = false">关闭</el-button>
+                <el-button v-if="dialogStatus=='create'" type="primary" @click="addData">保存</el-button>
+                <el-button v-else type="primary" @click="updateData">保存</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import { tableList, tableAdd, tableUpdate, tableDelete, selectUserList} from '../../../api/department'
+    export default {
+        data() {
+            return {
+                tableData: [],
+                total: 0,
+                listParam: {
+                    page: 1,
+                    pageSize: 10,
+                    condition:'',
+                    userId:''
+                },
+                listLoading: false,
+                dialogStatus: '',
+                formTitle:'',
+                editVisible: false,
+                delVisible: false,
+                authVisible: false,
+                form: {
+                    guid:'',
+                    ccode:'',
+                    cname: '',
+                    userId:'',
+                    phone:'',
+                    cdesc: '',
+                    chargeName:''
+                },
+                userList:[],
+                userFormList:[],
+                idx: -1,
+                rules: {
+                    phone: [{ required: true, validator:this.phoneRule, trigger: 'blur' }],
+                    cname: [{ required: true, message: '此字段为必填', trigger: 'blur' }],
+                    userId: [{ required: true, message: '此字段为必填', trigger: 'blur' }]
+                }
+            }
+        },
+        created() {
+            this.getTableData();
+            this.getUserList();
+        },
+        computed: {
+        },
+        methods: {
+            // 分页导航
+            handleCurrentChange(val) {
+                this.listParam.page = val;
+                this.getTableData();
+            },
+            handleSizeChange(val) {
+                this.listParam.pageSize = val;
+                this.getTableData()
+            },
+            getTableData() {
+                this.listLoading = true;
+                tableList(this.listParam).then(response => {
+                    this.tableData = response.data.data;
+                    this.total = response.data.total;
+                    this.listLoading = false
+                })
+            },
+            indexMethod(index){
+                return index + (this.listParam.page - 1) * 10 + 1;
+            },
+            //搜索
+            search() {
+                this.getTableData();
+            },
+            //表单添加
+            handleAdd(){
+                this.formTitle='添加'
+                this.form={
+                    guid:'',
+                    ccode:'',
+                    cname: '',
+                    userId:'',
+                    phone:'',
+                    cdesc: '',
+                    chargeName:''
+                };
+                this.form.chargeName=
+                this.dialogStatus = 'create';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+            },
+            addData(){
+                this.$refs['form'].validate((valid) => {
+                    if(valid){
+                        tableAdd(this.form).then(() => {
+                            this.getTableData();
+                            this.editVisible = false;
+                            this.$notify({
+                                title: '成功',
+                                message: '创建成功',
+                                type: 'success',
+                                duration: 2000
+                            })
+                        })
+                    }
+                })
+            },
+            //表单编辑
+            handleUpdate(index, row) {
+                this.formTitle='编辑';
+                this.idx = index;
+                this.form= Object.assign({}, row);
+                this.dialogStatus = 'update';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+            },
+            // 保存编辑
+            updateData() {
+                tableUpdate(this.form).then(() => {
+                    this.getTableData();
+                    this.editVisible = false;
+                    this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                })
+            },
+            //表单删除
+            handleDelete(index, row) {
+                this.idx = index;
+                this.delVisible = true;
+                const item = this.tableData[index];
+                this.delete = {guid:item.guid,}
+            },
+            // 确定删除
+            deleteRow(){
+                tableDelete(this.delete).then(() => {
+                    this.getTableData();
+                    this.$message.success('删除成功');
+                    this.delVisible = false;
+                })
+            },
+            //负责人下拉数据
+            changeValue(value){
+                let obj = {};
+                obj = this.userFormList.find((item)=>{
+                    return item.userId === value;
+                });
+                this.form.chargeName=obj.userName;
+            },
+            getUserList(){
+                selectUserList().then(response =>{
+                    this.userList=response.data.data;
+                    this.userFormList=response.data.data;
+                })
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-box {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .handle-box .search-left{
+        flex: 1;
+    }
+    .handle-select {
+        width: 150px;
+    }
+    .handle-input {
+        width: 200px;
+        display: inline-block;
+    }
+    .del-dialog-cnt{
+        font-size: 16px;
+        text-align: center
+    }
+</style>

@@ -1,0 +1,310 @@
+<template>
+    <div class="table">
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                    <el-button type="info" icon="el-icon-back" @click="routeTo('/storeCheck')">返回</el-button>
+                </div>
+                <div align="right" class="search-right">
+                    <el-tag type="success" size="medium">盘点范围：222</el-tag>
+                    <el-tag type="success" size="medium">盘点范围：222</el-tag>
+                    <el-tag type="success" size="medium">盘点范围：222</el-tag>
+                </div>
+            </div>
+            <div class="layout-content content-green" style="padding:0">
+                <div class="grid-content bg-purple">
+                    <div class="box-title">
+                        <h4>盘点商品查看</h4>
+                        <div class="more"><span class="mr10">损益商品：120</span><span class="ml10">全部商品：100</span></div>
+                    </div>
+                    <div class="box-content" style="padding: 20px 20px 0 20px">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div class="grid-content bg-purple">
+                                    <ul class="view-wrap">
+                                        <li class="viewItem">
+                                        <div class="view-head">
+                                            <ul>
+                                                <li><span>商品数量：100</span><span>实盘数量：80</span></li>
+                                                <div class="line"></div>
+                                                <li><span>损益数量：-20</span></li>
+                                            </ul>
+                                        </div>
+                                        <div class="view-foot">
+                                            <ul>
+                                                <li class="imgBox"><img src="/static/img/goods.png"/></li>
+                                                <li class="conBox">
+                                                    <h4>猕猴桃果醋<span class="spec">(500ml/瓶)</span></h4>
+                                                    <p>猕猴桃果醋</p>
+                                                    <p class="reason">猕猴桃果醋</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    </ul>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog title="选择盘点范围" :visible.sync="editVisible" width="30%" custom-class="mod-el-dialog">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="100px">
+                <el-form-item label="全部仓库">
+                    <el-select v-model="form.zhccStore.refSysParam" placeholder="仓库名称" style="width: 100%">
+                        <el-option v-for="item in storeTypeList" :key="item.guid" :label="item.cname" :value="item.guid"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="editVisible = false">取 消</el-button>
+                <el-button v-if="dialogStatus=='create'" type="primary" @click="addData">保 存</el-button>
+                <el-button v-else type="primary" @click="updateData">保 存</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    import baseMixin from '../../common/tableBase';
+    export default {
+        mixins: [baseMixin],
+        data() {
+            return {
+                Urls:{
+                    tableList:'/zhccstore/list',
+                    tableAdd:'/zhccstore/add',
+                    tableUpdate:'/zhccstore/update',
+                    tableDelete:'/zhccstore/delete',
+                    storeList:'/zhccstore/selectById',
+                    storeTypeList:'/sysparameters/list',
+                    storeDelete:'/zhccstore/update'
+                },
+                listParam: {
+                    page: 1,
+                    pageSize: 10,
+                    refSysParam: '',
+                    condition:''
+                },
+                log:{
+                    person:'',
+                    phone:''
+                },
+                form: {
+                    zhccStore:{
+                        cname: '',
+                        ccode: '800001',
+                        refSysParam: '',
+                        cprovince: '',
+                        cdistrict: '',
+                        ccounty: '',
+                        detailAddress: ''
+                    },
+                    listRegionConfig:[]
+                },
+                rules: {
+                    cname: [{ required: true, message: '此字段为必填', trigger: 'blur' }],
+                },
+                storeData:[],
+                storeTypeList:[],
+            }
+        },
+        created() {
+            this.getStoreType()
+            this.getProvice();
+        },
+        watch:{},
+        computed: {},
+        methods: {
+            resetForm() {
+                this.form = {
+                    zhccStore:{
+                        cname: '',
+                        ccode: '800001',
+                        refSysParam: '',
+                        cprovince: '',
+                        cdistrict: '',
+                        ccounty: '',
+                        detailAddress: ''
+                    },
+                    listRegionConfig:[]
+                }
+                this.log= {
+                    person:'',
+                    phone:''
+                }
+            },
+            preAdd(){
+                this.log.person=localStorage.getItem('ms_username');
+                this.log.phone=localStorage.getItem('ms_userphone');
+                this.storeData=[
+                    {
+                        cname: 'A区',
+                        regionCapacity: '',
+                        oneCapacity: '',
+                    }
+                ]
+            },
+            //表单提交
+            preSubmit(){
+                if(typeof this.storeAjax=='undefined'){
+                    for(let i = 0; i < this.storeData.length; i++){
+                        this.form.listRegionConfig[i]=
+                            {
+                                guid:this.storeData[i].guid,
+                                cname:this.storeData[i].cname,
+                                regionCapacity:this.storeData[i].regionCapacity,
+                                oneCapacity:this.storeData[i].oneCapacity,
+                                cstatus:this.storeData[i].cstatus
+                            }
+                    }
+                }else{
+                    for(let i = 0; i < this.storeAjax.length; i++){
+                        this.form.listRegionConfig[i]=
+                            {
+                                guid:this.storeAjax[i].guid,
+                                cname:this.storeAjax[i].cname,
+                                regionCapacity:this.storeAjax[i].regionCapacity,
+                                oneCapacity:this.storeAjax[i].oneCapacity,
+                                cstatus:this.storeAjax[i].cstatus
+                            }
+                    }
+                }
+            },
+            //表单编辑
+            preEdit(index,row){
+                this.getStore(row);
+            },
+            //仓库获取
+            getStore(row){
+                request({
+                    url:this.Urls.storeList,
+                    method: 'get',
+                    params: {guid: row.guid}
+                }).then(response => {
+                    this.log.person=response.data.data.zhccStore.operator;
+                    this.log.phone=response.data.data.zhccStore.operatorPhone;
+                    this.form.zhccStore.guid=response.data.data.zhccStore.guid,
+                        this.form.zhccStore.cname=response.data.data.zhccStore.cname,
+                        this.form.zhccStore.ccode=response.data.data.zhccStore.ccode,
+                        this.form.zhccStore.refSysParam=response.data.data.zhccStore.refSysParam,
+                        this.form.zhccStore.cprovince=response.data.data.zhccStore.cprovince,
+                        this.getDistrict(response.data.data.zhccStore.cprovince);
+                    this.getCounty(response.data.data.zhccStore.cdistrict);
+                    this.form.zhccStore.cdistrict=response.data.data.zhccStore.cdistrict,
+                        this.form.zhccStore.ccounty=response.data.data.zhccStore.ccounty,
+                        this.form.zhccStore.detailAddress=response.data.data.zhccStore.detailAddress
+                    this.storeData=response.data.data.listRegionConfig;
+                    if(this.storeData.length == 1){
+                        this.isDisabled=true
+                    }
+                })
+            },
+            getAreaName(num){
+                var stringName = "";
+                if(num > 0) {
+                    if(num >= 1 && num <= 26) {
+                        stringName = String.fromCharCode(64 + parseInt(num));
+                    } else {
+                        while(num > 26) {
+                            var count = parseInt(num / 26);
+                            var remainder = num % 26;
+                            if(remainder == 0) {
+                                remainder = 26;
+                                count--;
+                                stringName = "-"+String.fromCharCode(64 + parseInt(remainder)) + stringName;
+                            } else {
+                                stringName = "-" + String.fromCharCode(64 + parseInt(remainder)) + stringName;
+                            }
+                            num = count;
+                        }
+                        stringName = String.fromCharCode(64 + parseInt(num)) + stringName;
+                    }
+                }
+                return stringName += '区'
+            },
+            tableLineAdd(){
+                this.storeData.push({
+                    cname: '',
+                    regionCapacity: '',
+                    oneCapacity: '',
+                });
+                for(let i = 0; i < this.storeData.length; i++){
+                    let num=i+1;
+                    this.storeData[i].cname=this.getAreaName(num)
+                }
+                if(this.storeData.length > 1){
+                    this.isDisabled=false
+                }
+            },
+            tableLineDelete(index, row){
+                this.storeData[index].cstatus='0'
+                var obj=this.storeData.splice(index,1);
+                this.storeAjax=this.storeData.concat(obj)
+            },
+            renderHeader(h) {
+                return h('el-button', {
+                    domProps: {
+                        innerHTML: '增加'
+                    },
+                    attrs: {
+                        type: 'success'
+                    },
+                    on: {
+                        click: this.tableLineAdd
+                    }
+                })
+            },
+            getStoreType(){
+                request({
+                    url:this.Urls.storeTypeList,
+                    method: 'get',
+                    params: {ctype: '2'}
+                }).then(response => {
+                    this.storeTypeList=response.data.data
+                })
+            },
+            routeTo(path){
+                this.$router.push(path);
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-box {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .handle-box .search-left{
+        flex: 1;
+    }
+    .handle-select {
+        width: 150px;
+    }
+    .handle-Mselect {
+        width: 300px;
+    }
+    .handle-input {
+        width: 200px;
+        display: inline-block;
+    }
+    .del-dialog-cnt{
+        font-size: 16px;
+        text-align: center
+    }
+</style>

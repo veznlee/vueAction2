@@ -1,0 +1,251 @@
+<template>
+    <div>
+        <el-row>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-green">
+                        <div class="layout-title">
+                            <h4>工作台</h4>
+                        </div>
+                        <div class="layout-content content-green">
+                            <el-row :gutter="30">
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>待审核销售单<el-badge class="mark" :value="25" /></h4>
+                                            <a href="#" class="more">查看更多>></a>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>审核单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>待出库销售单<el-badge class="mark" :value="25" /></h4>
+                                            <a href="#" class="more">查看更多>></a>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>出库单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>待入库退货单<el-badge class="mark" :value="25" /></h4>
+                                            <a href="#" class="more">查看更多>></a>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>退货单</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <el-row :gutter="30">
+                        <el-col :span="12">
+                            <div class="layout-content layout-independent content-orange">
+                                <div class="box-title">
+                                    <h4>商品库存预警<span class="goods-count">共20种商品</span></h4>
+                                    <a href="#" class="more">查看更多>></a>
+                                </div>
+                                <div class="box-content">
+                                    <div class="goods-box">
+                                        <el-row :gutter="15">
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="layout-content layout-independent content-orange">
+                                <div class="box-title">
+                                    <h4>商品过期预警<span class="goods-count">共20种商品</span></h4>
+                                    <a href="#" class="more">查看更多>></a>
+                                </div>
+                                <div class="box-content">
+                                    <div class="goods-box">
+                                        <el-row :gutter="15">
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="12">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img src="/static/img/goods.png"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>果醋（500ml/瓶）</h4></li>
+                                                            <li><span>剩余数量<b class="surplus">5瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">2瓶</b></span></li>
+                                                            <li><span>成品库-A区-15号<b class="number">3瓶</b></span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    export default {
+        data() {
+            return {
+                Urls:{
+                    orderList:'/workFlow/countUserTask',
+                },
+                orderParam: {},
+                order:{
+                    completed:'',
+                    auditing:'',
+                    testing:'',
+                    proIn:'',
+                    proOut:'',
+                    returnIn:'',
+                    purchaseIn:'',
+                    saleOut:'',
+                }
+            }
+        },
+
+        created:function(){
+            this.getOrderData();
+        },
+        methods:{
+            getOrderData() {
+                request({
+                    host:1,
+                    url:this.Urls.orderList,
+                    method: 'get',
+                    params: this.orderParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.tableData = response.data.data;
+                    }
+                })
+            },
+        },
+    }
+</script>
+
+<style scoped>
+
+</style>

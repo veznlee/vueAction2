@@ -1,0 +1,237 @@
+import request from '../../utils/request'
+var baseMixin = {
+    data() {
+        return {
+            Urls:{
+                tableList:'',
+                tableAdd:'',
+                tableUpdate:'',
+                tableDelete:'',
+                areaListUrl:'/sysparameters/choseArea',
+                statusList:''
+            },
+            tableData: [],
+            total: 0,
+            listParam: {
+                page: 1,
+                pageSize: 10,
+                condition:''
+            },
+            listLoading: false,
+            dialogStatus: '',
+            formTitle:'',
+            editVisible: false,
+            delVisible: false,
+            form: {},
+            idx: -1,
+            proviceList:[],
+            districtList:[],
+            countyList:[],
+            rules: {},
+            isDisabled:true,
+        }
+    },
+    created() {
+        this.getTableData();
+    },
+    watch:{},
+    computed: {
+    },
+    methods: {
+        // 分页导航
+        handleCurrentChange(val) {
+            this.listParam.page = val;
+            this.getTableData();
+        },
+        handleSizeChange(val) {
+            this.listParam.pageSize = val;
+            this.getTableData()
+        },
+        getTableData() {
+            this.listLoading = true;
+            request({
+                url:this.Urls.tableList,
+                method: 'get',
+                params: this.listParam
+            }).then(response => {
+                if(response.data.code==0){
+                    this.tableData = response.data.data;
+                    this.total = response.data.total;
+                    this.listLoading = false
+                }
+            })
+        },
+        indexMethod(index){
+            return index + (this.listParam.page - 1) * this.listParam.pageSize + 1;
+        },
+        //搜索
+        search() {
+            this.getTableData();
+        },
+        resetForm() {
+            this.form = {}
+        },
+        //表单添加
+        handleAdd(){
+            this.isDisabled=true;
+            this.formTitle='添加';
+            this.resetForm();
+            this.preAdd();
+            this.dialogStatus = 'create';
+            this.editVisible = true;
+            this.$nextTick(() => {
+                this.$refs['form'].clearValidate()
+            })
+        },
+        addData(){
+            this.$refs['form'].validate((valid) => {
+                if(valid){
+                    this.preSubmit()
+                    var data=this.form
+                    request({
+                        url:this.Urls.tableAdd,
+                        method: 'post',
+                        data
+                    }).then(response => {
+                        if(response.data.code==0){
+                            this.getTableData();
+                            this.editVisible = false;
+                            this.$notify({
+                                title: '成功',
+                                message: '创建成功',
+                                type: 'success',
+                                duration: 2000
+                            })
+                        }
+                    })
+                }
+            })
+        },
+        preAdd(){},
+        preSubmit(){},
+        //表单编辑
+        handleUpdate(index, row) {
+            this.isDisabled=false;
+            this.formTitle='编辑';
+            this.idx = index;
+            this.preEdit(index,row);
+            this.dialogStatus = 'update';
+            this.editVisible = true;
+            this.$nextTick(() => {
+                this.$refs['form'].clearValidate()
+            });
+        },
+        // 保存编辑
+        updateData() {
+            this.preSubmit()
+            var data=this.form
+            request({
+                url:this.Urls.tableUpdate,
+                method: 'post',
+                data
+            }).then(response => {
+                if(response.data.code==0){
+                    this.getTableData();
+                    this.editVisible = false;
+                    this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                }
+            })
+        },
+        preEdit(){},
+        //表单删除
+        handleDelete(index, row) {
+            this.idx = index;
+            this.delVisible = true;
+            const item = this.tableData[index];
+            this.delete = {guid:item.guid}
+        },
+        // 确定删除
+        deleteRow(){
+            request({
+                url:this.Urls.tableDelete,
+                method: 'get',
+                params: this.delete
+            }).then(response => {
+                if(response.data.code==0){
+                    this.getTableData();
+                    this.$message.success('删除成功');
+                    this.delVisible = false;
+                }
+            })
+        },
+        //状态修改
+        statusChange(index, row){
+            const item = this.tableData[index];
+            this.status = {
+                guid: item.guid,
+                cstatus:item.cstatus
+            };
+            request({
+                url:this.Urls.statusList,
+                method: 'get',
+                params: this.status
+            }).then(response => {
+                if(response.data.code==0){
+                    this.getTableData();
+                    this.$message.success('修改成功');
+                }
+            })
+        },
+        changeProvice(value){
+            this.isDisabled=false;
+            this.getDistrict(value)
+        },
+        changeDistrict(value){
+            this.getCounty(value)
+        },
+        //省市区查询
+        getProvice(){
+            request({
+                url:this.Urls.areaListUrl,
+                method: 'get',
+                params: {type:'0'}
+            }).then(response => {
+                this.proviceList=response.data.data;
+            })
+        },
+        getDistrict(proviceCode){
+            request({
+                url:this.Urls.areaListUrl,
+                method: 'get',
+                params: {
+                    type:'1',
+                    id:proviceCode
+                }
+            }).then(response =>{
+                this.districtList=response.data.data;
+            });
+        },
+        getCounty(districtCode){
+            request({
+                url:this.Urls.areaListUrl,
+                method: 'get',
+                params: {
+                    type:'2',
+                    id:districtCode
+                }
+            }).then(response =>{
+                this.countyList=response.data.data;
+            });
+        },
+        changeValue(value){
+            let obj = {};
+            obj = this.countyList.find((item)=>{
+                return item.id === value;
+            });
+        },
+        //时间格式化
+        dateFormat:function(row, column) {
+            var date = row[column.property];
+            if (date == undefined) {
+                return "";
+            }
+            return this.moment(date).format("YYYY-MM-DD HH:mm:ss");
+        },
+    }
+}
+export default baseMixin;

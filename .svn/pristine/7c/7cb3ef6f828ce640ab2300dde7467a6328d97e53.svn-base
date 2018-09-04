@@ -1,0 +1,469 @@
+<template>
+    <div class="table">
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item><i class="el-icon-tickets"></i> 仓库配置</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                    <el-button type="primary" icon="add" @click="handleAdd()">新增</el-button>
+                </div>
+                <div align="right" class="search-right">
+                    <el-input v-model="listParam.condition" placeholder="角色编码/角色名称" @keyup.enter.native="search" class="handle-input mr10"></el-input>
+                    <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                </div>
+            </div>
+            <el-table :data="tableData" border style="width: 100%" v-loading="listLoading" element-loading-text="给我一点时间">
+                <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column prop="ccode" label="仓库编码" width="160">
+                </el-table-column>
+                <el-table-column prop="cname" label="仓库名称" width="120">
+                </el-table-column>
+                <el-table-column prop="storeType" label="仓库类型" width="120">
+                </el-table-column>
+                <el-table-column prop="address" label="仓库所在地" width="200">
+                </el-table-column>
+                <el-table-column prop="detailAddress" label="详细地址">
+                </el-table-column>
+                <el-table-column prop="createdate" label="创建时间" :formatter="dateFormat" width="160">
+                </el-table-column>
+                <el-table-column label="操作" align="center" width="180">
+                    <template slot-scope="scope">
+                        <el-button class="danger" size="small" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+                        <el-button class="wraning" size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="50%" custom-class="mod-el-dialog">
+            <el-row :gutter="20" class="dialogTop mgb20">
+                <el-col :span="12" align="center"><div class="grid-content bg-purple">操作员：张三</div></el-col>
+                <el-col :span="12" align="center"><div class="grid-content bg-purple">操作员电话：18786631878</div></el-col>
+            </el-row>
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="100px">
+                <el-form-item label="仓库名称">
+                    <el-input v-model="form.zhccStore.cname"></el-input>
+                </el-form-item>
+                <el-form-item label="仓库编码">
+                    <el-input v-model="form.zhccStore.ccode"></el-input>
+                </el-form-item>
+                <el-form-item label="区域配置">
+                    <el-table :data="storeData" border style="width: 100%">
+                        <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                        <el-table-column label="区域名称" width="130">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.cname"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="号量/每区" width="120">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.regionCapacity"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="容量/每号">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.oneCapacity"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column width="80" align="center" :render-header="renderHeader">
+                            <template slot-scope="scope">
+                                <el-button size="mini" type="danger" @click="lineDelete(scope.$index, scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-form-item>
+                <el-form-item label="仓库所在地" class="area-select">
+                    <el-row>
+                        <el-col :span="8">
+                            <div class="grid-content bg-purple">
+                                <el-select v-model="form.zhccStore.cprovince" @change="getDistrict()" placeholder="选择省份">
+                                    <el-option v-for="item in proviceList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </div>
+                        </el-col>
+                        <el-col :span="8">
+                            <div class="grid-content bg-purple">
+                                <el-select v-model="form.zhccStore.cdistrict" @change="getCounty()" placeholder="选择市州">
+                                    <el-option v-for="item in districtList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </div>
+                        </el-col>
+                        <el-col :span="8">
+                            <div class="grid-content bg-purple">
+                                <el-select v-model="form.zhccStore.ccounty" placeholder="选择区县">
+                                    <el-option v-for="item in countyList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                </el-select>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </el-form-item>
+                <el-form-item label="详细地址">
+                    <el-input v-model="form.zhccStore.detailAddress"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="editVisible = false">取 消</el-button>
+                <el-button v-if="dialogStatus=='create'" type="primary" @click="addData">确定</el-button>
+                <el-button v-else type="primary" @click="updateData">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 权限配置弹出框 -->
+        <el-dialog title="权限配置" :visible.sync="authVisible" width="20%">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="80px">
+                <el-tree
+                    ref="tree"
+                    :data="treeData"
+                    show-checkbox
+                    node-key="id"
+                    highlight-current
+                    :props="defaultProps">
+                </el-tree>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="authVisible = false">取 消</el-button>
+                <el-button type="primary" @click="AuthData">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import { tableList, tableAdd, tableUpdate, tableDelete, treeList, treeAdd, storeList, addressList} from '../../../api/storeConfig'
+    import {formatDate} from '../../common/date.js'
+    export default {
+        data() {
+            return {
+                tableData: [],
+                total: 0,
+                listParam: {
+                    page: 1,
+                    pageSize: 10,
+                    condition:''
+                },
+                listLoading: false,
+                dialogStatus: '',
+                formTitle:'',
+                editVisible: false,
+                delVisible: false,
+                authVisible: false,
+                form: {
+                    zhccStore:{
+                        cname: '',
+                        ccode: '',
+                        refSysParam: '',
+                        cprovince: '',
+                        cdistrict: '',
+                        ccounty: '',
+                        detailAddress: ''
+                    },
+                    listRegionConfig:[]
+                },
+                roleList:[],
+                departList:[],
+                treeList:{guid:''},
+                treeSubmit:{
+                    userId:'',
+                    permIds:[]
+                },
+                idx: -1,
+                rules: {
+                    //cname: [{ required: true, message: '此字段为必填', trigger: 'blur' }],
+                },
+                treeData: [],
+                defaultProps: {
+                    children: 'children',
+                    label: 'name'
+                },
+                storeParam:{
+                    guid:''
+                },
+                storeData:[],
+                proviceList:[],
+                districtList:[],
+                countyList:[],
+                provice:{
+                    type:0,
+                    id:''
+                },
+                district:{
+                    type:1,
+                    id:''
+                },
+                county:{
+                    type:2,
+                    id:''
+                },
+            }
+        },
+        created() {
+            this.getTableData();
+            this.getProvice();
+        },
+        watch:{
+
+        },
+        computed: {
+        },
+        methods: {
+            //省市区获取
+            getProvice(){
+                addressList(this.provice).then(response =>{
+                    this.proviceList=response.data.data;
+                })
+            },
+            getDistrict(){
+                this.district.id=this.form.zhccStore.cprovince
+                addressList(this.district).then(response =>{
+                    this.districtList=response.data.data;
+                })
+            },
+            getCounty(){
+                this.county.id=this.form.zhccStore.cdistrict
+                addressList(this.county).then(response =>{
+                    this.countyList=response.data.data;
+                })
+            },
+            // 分页导航
+            handleCurrentChange(val) {
+                this.listParam.page = val;
+                this.getTableData();
+            },
+            handleSizeChange(val) {
+                this.listParam.pageSize = val;
+                this.getTableData()
+            },
+            getTableData() {
+                this.listLoading = true;
+                tableList(this.listParam).then(response => {
+                    if(response.data.code==0){
+                        console.log(response.data.data);
+                        this.tableData = response.data.data;
+                        this.total = response.data.total;
+                        this.listLoading = false
+                    }else{
+                        this.$message.error(response.data.msg);
+                    }
+                })
+            },
+            indexMethod(index){
+                return index + (this.listParam.page - 1) * 10 + 1;
+            },
+            //搜索
+            search() {
+                this.getTableData();
+            },
+            //表单添加
+            handleAdd(){
+                this.formTitle='添加'
+                this.form={
+                    zhccStore:{
+                        cname: '',
+                        ccode: '',
+                        refSysParam: '',
+                        cprovince: '',
+                        cdistrict: '',
+                        ccounty: '',
+                        detailAddress: ''
+                    },
+                    listRegionConfig:[]
+                };
+                this.dialogStatus = 'create';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+            },
+            addData(){
+                this.$refs['form'].validate((valid) => {
+                    if(valid){
+                        tableAdd(this.form).then(() => {
+                            this.getTableData();
+                            this.editVisible = false;
+                            this.$notify({
+                                title: '成功',
+                                message: '创建成功',
+                                type: 'success',
+                                duration: 2000
+                            })
+                        })
+                    }
+                })
+            },
+            //表单编辑
+            handleUpdate(index, row) {
+                this.formTitle='编辑';
+                this.idx = index;
+                this.dialogStatus = 'update';
+                this.editVisible = true;
+                this.form.zhccStore= Object.assign({}, row);
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+                this.storeParam.guid=this.tableData[index].guid;
+                this.getStore();
+            },
+            // 保存编辑
+            updateData() {
+                tableUpdate(this.form).then(() => {
+                    this.getTableData();
+                    this.editVisible = false;
+                    this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                })
+            },
+            //仓库类型
+            getStore(){
+                storeList(this.storeParam).then(response =>{
+                    console.log(response.data.data.listRegionConfig);
+                    this.storeData=response.data.data.listRegionConfig;
+                    for(let i = 0; i < this.storeData.length; i++){
+                        this.form.listRegionConfig.push(this.storeData[i])
+                    }
+                })
+            },
+            //表单删除
+            handleDelete(index, row) {
+                this.idx = index;
+                this.delVisible = true;
+                const item = this.tableData[index];
+                this.delete = {
+                    guid:item.guid,
+                }
+            },
+            // 确定删除
+            deleteRow(){
+                tableDelete(this.delete).then(() => {
+                    this.getTableData();
+                    this.$message.success('删除成功');
+                    this.delVisible = false;
+                })
+            },
+            //权限配置
+            handleAuth(index,row){
+                this.authVisible=true
+                const item = this.tableData[index];
+                this.treeParam={guid:item.guid}
+                treeList(this.treeParam).then(response =>{
+                    this.treeData=response.data.data;
+                    var resDate=response.data.data;
+                    let keys = []
+                    function array(data) {
+                        for(let i=0; i<data.length; i++){
+                            var key=data[i]
+                            if(key.children){
+                                array(key.children);
+                            }
+                            if(key.checked==true){
+                                keys.push(key.id)
+                            }
+                        }
+                    }
+                    array(resDate);
+                    this.$refs.tree.setCheckedKeys(keys)
+                })
+                this.treeSubmit={
+                    userId:item.guid,
+                    permIds:[]
+                };
+            },
+            AuthData(){
+                this.treeSubmit.permIds=this.$refs.tree.getCheckedKeys()
+                treeAdd(this.treeSubmit).then(() => {
+                    this.getTableData();
+                    this.$message.success('配置成功');
+                    this.authVisible = false;
+                })
+            },
+            validatePass(rule, value, callback){
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.form.checkPassword !== '') {
+                        this.$refs.form.validateField('checkPassword');
+                    }
+                    callback();
+                }
+            },
+            validateCheckPass(rule, value, callback){
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.form.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            },
+            //时间格式化
+            dateFormat:function(row, column) {
+                var date = row[column.property];
+                if (date == undefined) {
+                    return "";
+                }
+                return this.moment(date).format("YYYY-MM-DD HH:mm:ss");
+            },
+            addline(){
+                this.storeData.push({
+                    cname:'',
+                    regionCapacity:'',
+                    oneCapacity:''
+                });
+            },
+            lineDelete(index, row){
+                console.log(index, row);
+                this.storeData.splice(index,1);
+            },
+            renderHeader(h) {
+                return h('el-button', {
+                    domProps: {
+                        innerHTML: '增加'
+                    },
+                    on: {
+                        click: this.addline
+                    }
+                })
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-box {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .handle-box .search-left{
+        flex: 1;
+    }
+    .handle-select {
+        width: 200px;
+    }
+    .handle-input {
+        width: 200px;
+        display: inline-block;
+    }
+    .del-dialog-cnt{
+        font-size: 16px;
+        text-align: center
+    }
+    .area-select{
+
+    }
+</style>

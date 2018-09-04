@@ -1,0 +1,376 @@
+<template>
+    <div>
+        <el-row>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-green">
+                        <div class="layout-title">
+                            <h4>工作台</h4>
+                        </div>
+                        <div class="layout-content content-green" style="padding-top: 0">
+                            <el-row :gutter="30">
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-1">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/sellOutStore',query:{status:'0'}}">
+                                                        <div class="grid-num">{{saleOut}}</div>
+                                                        <div class="grid-tit">待出库销售单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-2">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/getOutStore',query:{status:'0'}}">
+                                                        <div class="grid-num">{{productOut}}</div>
+                                                        <div class="grid-tit">待出库领料单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-3">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/returnInStore',query:{status:'0'}}">
+                                                        <div class="grid-num">{{returnIn}}</div>
+                                                        <div class="grid-tit">待入库退货单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-2">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/yieldingInStore',query:{status:'0'}}">
+                                                        <div class="grid-num">{{productIn}}</div>
+                                                        <div class="grid-tit">待入库生产单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-1">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/stockInStore',query:{status:'0'}}">
+                                                        <div class="grid-num">{{purchaseIn}}</div>
+                                                        <div class="grid-tit">待入库采购单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <el-row :gutter="30">
+                        <el-col :md="24" :xl="12">
+                            <div class="layout-content layout-independent content-orange">
+                                <div class="box-title">
+                                    <h4>商品库存预警<span class="goods-count">共{{warnStoreTotal}}种商品</span></h4>
+                                    <router-link :to="{path:'/warnStore'}"><span class="more">查看更多>></span></router-link>
+                                </div>
+                                <div class="box-content">
+                                    <div class="goods-box">
+                                        <el-row :gutter="15">
+                                            <el-col :xl="12" :lg="12" :sm="24" v-for="(item,index) in warnStoreData" :key="index">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img :src="item.imgUrl"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>{{item.productName}}<span class="spec" :title="item.specification+item.smallUnit+'/'+item.bigUnit">({{item.specification}} {{item.smallUnit}}/{{item.bigUnit}})</span></h4></li>
+                                                            <li><span>剩余数量<b class="surplus">{{item.restNum}} {{item.smallUnit}}</b></span></li>
+                                                            <el-scrollbar>
+                                                                <div class="goodsWrap">
+                                                                    <p v-for="item in item.houseWaring">
+                                                                        <span class="detail">{{item.storeName}}-{{item.regionName}}-{{item.regionInfoCode}}号<b class="number">{{item.num}}{{item.unit}}</b></span>
+                                                                    </p>
+                                                                </div>
+                                                            </el-scrollbar>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                        <el-col :md="24" :xl="12">
+                            <div class="layout-content layout-independent content-orange">
+                                <div class="box-title">
+                                    <h4>商品过期预警<span class="goods-count">共{{warnOverdueTotal}}种商品</span></h4>
+                                    <router-link :to="{path:'/warnOverdue'}"><span class="more">查看更多>></span></router-link>
+                                </div>
+                                <div class="box-content">
+                                    <div class="goods-box">
+                                        <el-row :gutter="15">
+                                            <el-col :xl="12" :lg="12" :sm="24" v-for="(item,index) in warnOverdueData" :key="index">
+                                                <div class="grid-content bg-purple">
+                                                    <div class="good">
+                                                        <div class="goodImg"><img :src="item.imgUrl"/></div>
+                                                        <ul class="goodInfo">
+                                                            <li><h4>{{item.productName}}<span class="spec" :title="item.specification+item.smallUnit+'/'+item.bigUnit">({{item.specification}} {{item.smallUnit}}/{{item.bigUnit}})</span></h4></li>
+                                                            <li><span>快过期数量<b class="surplus">{{item.restNum}} {{item.smallUnit}}</b></span></li>
+                                                            <el-scrollbar>
+                                                                <div class="goodsWrap">
+                                                                    <p v-for="item in item.houseWaring">
+                                                                        <span class="detail">{{item.storeName}}-{{item.regionName}}-{{item.regionInfoCode}}号<b class="number">{{item.num}}{{item.unit}}</b></span>
+                                                                        <span class="date">{{moment(item.date).format('YYYY-MM-DD')}}</span>
+                                                                    </p>
+                                                                </div>
+                                                            </el-scrollbar>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-blue">
+                        <div class="layout-title">
+                            <h4>仓库环境监控</h4>
+                        </div>
+                        <div class="layout-content content-blue" style="padding-top: 0">
+                            <el-row :gutter="30">
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10" v-for="(item,index) in ambientList" :key="index">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>{{item.name}}</h4>
+                                            <!--<router-link :to="{path:'/storeView_region',query:{storeId:item.guid, storeName:item.name}}">-->
+                                                <a href="javascript:;" @click="turnPage(item.guid, item.name)">
+                                                    <span class="more">前往仓库>></span>
+                                                </a>
+                                            <!--</router-link>-->
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <span class="icon-grey" :class="item.humidityDanger==1 ? 'active' : ''"><i class="iconfont icon-shidu"></i></span>
+                                                    <span>湿度{{item.humidity | filterFun}}°C</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <span class="icon-grey" :class="item.temperatureDanger==1 ? 'active' : ''"><i class="iconfont icon-wendu"></i></span>
+                                                    <span>温度{{item.temperature | filterFun}}%rh</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <span class="icon-grey" :class="item.smogDanger==1 ? 'active' : ''"><i class="iconfont icon-yanwu"></i></span>
+                                                    <span>烟雾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    export default {
+        data() {
+            return {
+                Urls:{
+                    orderList:'/workFlow/countUserTask',
+                    warnStoreList:'/commodity/repertory',
+                    warnOverdueList:'/commodity/due',
+                    ambientList:'/zhccstore/getDanger'
+                },
+                warnParam: {
+                    page: 1,
+                    pageSize: 10,
+                    productName:''
+                },
+                warnStoreData:[],
+                warnStoreTotal:'',
+                warnOverdueData:[],
+                warnOverdueTotal:'',
+                orderParam: {},
+                saleOut:'',
+                productOut:'',
+                returnIn:'',
+                productIn:'',
+                purchaseIn:'',
+                ambientList:[],
+            }
+        },
+        filters:{
+            filterFun: function (value) {
+                return value.toString().substring(0,5)
+            },
+        },
+        created:function(){
+            this.getOrderData();
+            this.getWarnStore();
+            this.getWarnOverDue();
+            this.getAmbientData();
+            setInterval(this.getAmbientData, 10000);
+        },
+        beforeDestroy () {
+            clearInterval(this.getAmbientData);
+        },
+        methods:{
+            getOrderData() {
+                request({
+                    host:1,
+                    url:this.Urls.orderList,
+                    method: 'get',
+                    params: this.orderParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        var resData=response.data.data.user;
+                        this.saleOut=resData.SellOutHouseOrder;
+                        this.productOut=resData.PickingOutHouseOrder;
+                        this.returnIn=resData.SalesReturnInHouseOrder;
+                        this.productIn=resData.ProductionInHouseOrder;
+                        this.purchaseIn=resData.PurchaseInHouseOrder;
+                    }
+                })
+            },
+            getWarnStore() {
+                this.listLoading = true;
+                request({
+                    url:this.Urls.warnStoreList,
+                    method: 'get',
+                    params: this.warnParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.warnStoreData = response.data.data.slice(0,4);
+                        for(var i=0; i<this.warnStoreData.length; i++){
+                            this.warnStoreData[i].imgUrl=this.globe.hostUrl+'/'+this.warnStoreData[i].imgUrl
+                        }
+                        this.warnStoreTotal = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+            getWarnOverDue() {
+                this.listLoading = true;
+                request({
+                    url:this.Urls.warnOverdueList,
+                    method: 'get',
+                    params: this.warnParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.warnOverdueData = response.data.data.slice(0,4);
+                        for(var i=0; i<this.warnOverdueData.length; i++){
+                            this.warnOverdueData[i].imgUrl=this.globe.hostUrl+'/'+this.warnOverdueData[i].imgUrl
+                        }
+                        this.warnOverdueTotal = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+            getAmbientData(){
+                this.listLoading = true;
+                request({
+                    url:this.Urls.ambientList,
+                    method: 'get',
+                    params: {}
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.ambientList = response.data.data;
+                        this.listLoading = false
+                    }
+                })
+            },
+            turnPage(guid,name){
+                sessionStorage.setItem("storeId", guid);
+                sessionStorage.setItem("storeName", name);
+                this.$router.push({path:'/storeView_region',query:{storeId:guid, storeName:name}});
+            }
+        },
+    }
+</script>
+
+<style scoped>
+    .grid-con-wrap {
+        display: flex;
+        align-items: center;
+        height: 100px;
+    }
+    .grid-cont-right {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+    }
+    .grid-num {
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .grid-tit {
+        font-size: 16px;
+        margin-top: 5px;
+        color: #333;
+    }
+    .grid-con-icon {
+        font-size: 50px;
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        line-height: 100px;
+        color: #fff;
+    }
+    .grid-con-1 .grid-con-icon {
+        background: rgb(45, 140, 240);
+    }
+    .grid-con-1 .grid-num {
+        color: rgb(45, 140, 240);
+    }
+    .grid-con-2 .grid-con-icon {
+        background: rgb(100, 213, 114);
+    }
+
+    .grid-con-2 .grid-num {
+        color: rgb(100, 213, 114);
+    }
+    .grid-con-3 .grid-con-icon {
+        background: rgb(242, 94, 67);
+    }
+    .grid-con-3 .grid-num {
+        color: rgb(242, 94, 67);
+    }
+    .mt10{
+        margin-top: 15px;
+    }
+</style>

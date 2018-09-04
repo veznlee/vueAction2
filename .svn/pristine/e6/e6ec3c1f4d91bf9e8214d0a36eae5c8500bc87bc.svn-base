@@ -1,0 +1,39 @@
+import request from '../utils/request'
+
+//数据统计
+
+//出入库统计
+export function getDataTable(param) {
+    return request({
+        url: '/dataAnalyze/getDataTable',
+        method: 'get',
+        params: param
+    })
+}
+//单量走势
+export function getOrderCount(param) {
+    return request({
+        url: '/dataAnalyze/getOrderCount',
+        method: 'get',
+        params: param
+    })
+}
+
+//商品走势
+export function addOrUpdate(param) {
+    return request({
+        url: '/dataAnalyze/getProductSum',
+        method: 'get',
+        params: param
+    })
+}
+
+//客户购买分析
+export function getCustomerData(param) {
+    return request({
+        url: '/dataAnalyze/getCustomerData',
+        method: 'get',
+        params: param
+    })
+}
+

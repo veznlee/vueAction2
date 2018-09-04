@@ -1,0 +1,510 @@
+<template>
+    <div class="table">
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item><i class="el-icon-tickets"></i>工作查看</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                </div>
+                <div align="right" class="search-right">
+                    <el-select v-model="listParam.processId" filterable placeholder="审核类型" class="handle-Melect mr10" @change="search">
+                        <el-option key="" label="所有类型" value=""></el-option>
+                        <el-option key="d7291435fed44a80b680484ac32693c3" label="采购入库" value="d7291435fed44a80b680484ac32693c3"></el-option>
+                        <el-option key="6f5ec356dec140d1aa5d10558b7b106a" label="领料出库" value="6f5ec356dec140d1aa5d10558b7b106a"></el-option>
+                        <el-option key="04e03be92b154c19967a45d0d175d321" label="生产入库" value="04e03be92b154c19967a45d0d175d321"></el-option>
+                        <el-option key="56f5f49d367f441687bfd71058445c85" label="销售出库" value="56f5f49d367f441687bfd71058445c85"></el-option>
+                        <el-option key="e6cdf66d6f0a4054bd548460204f0951" label="退货入库" value="e6cdf66d6f0a4054bd548460204f0951"></el-option>
+                        <el-option key="0" label="删除单据" value="0"></el-option>
+                    </el-select>
+                    <el-input v-model="listParam.code" placeholder="单号" @keyup.enter.native="search" class="handle-input mr10"></el-input>
+                    <el-input v-model="listParam.title" placeholder="标题" @keyup.enter.native="search" class="handle-input mr10"></el-input>
+                    <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                </div>
+            </div>
+            <el-table :data="tableData" border style="width: 100%" v-loading="listLoading" element-loading-text="正在载入数据，请稍候…">
+                <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column prop="orderdetailInfo.code" align="center" label="单号" sortable width="150"></el-table-column>
+                <el-table-column prop="orderdetailInfo.title" align="center" label="标题" sortable width="150"></el-table-column>
+                <el-table-column align="center" label="审核类型" sortable width="150">
+                    <template slot-scope="scope">{{scope.row.processId}}
+                        <span v-if="scope.row.orderdetailInfo.processId=='d7291435fed44a80b680484ac32693c3'">采购入库</span>
+                        <span v-if="scope.row.orderdetailInfo.processId=='6f5ec356dec140d1aa5d10558b7b106a'">领料出库</span>
+                        <span v-if="scope.row.orderdetailInfo.processId=='04e03be92b154c19967a45d0d175d321'">生产入库</span>
+                        <span v-if="scope.row.orderdetailInfo.processId=='56f5f49d367f441687bfd71058445c85'">销售出库</span>
+                        <span v-if="scope.row.orderdetailInfo.processId=='e6cdf66d6f0a4054bd548460204f0951'">退货入库</span>
+                        <span v-if="scope.row.orderdetailInfo.processId=='0'">删除单据</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="orderdetailInfo.operator" align="center" label="操作员" sortable width="100"></el-table-column>
+                <!--<el-table-column prop="updatetime" align="center" label="操作时间" sortable width="150"></el-table-column>-->
+                <el-table-column align="center" label="流程" width="250">
+                    <template slot-scope="scope">
+                        <span v-for="(item,index) in scope.row.taskNodeInfo">
+                            <span :class="'handle-flow-box flow-box'+item.done">{{item.name}}</span><div v-if="index<tableData[scope.$index].taskNodeInfo.length-1" class="join-line"></div>
+                        </span><span v-if="scope.row.orderdetailInfo.state==3"><div class="join-line"></div><span class="handle-flow-box" style="background-color: rgba(245,108,108,1);border:rgba(200,80,80,1)">删除</span></span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="orderdetailInfo.opinion" align="center" label="审核意见"></el-table-column>
+                <el-table-column label="操作" align="center" width="280">
+                    <template slot-scope="scope">
+                            <el-button size="small" @click="handleView(scope.$index, scope.row)">查看</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="70%" custom-class="mod-el-dialog">
+            <el-row :gutter="20" class="dialogTop mgb20">
+                <el-col :span="12" align="center"><div class="grid-content bg-purple">操作员：{{log.person}}</div></el-col>
+                <el-col :span="12" align="center"><div class="grid-content bg-purple">操作员电话：{{log.phone}}</div></el-col>
+            </el-row>
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="100px">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="标题：" prop="title"><el-input v-if="visible.title" v-model="form.title" maxlength="64" :readonly="!canEdit || readonly.title"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="单号："><el-input v-model="form.code" maxlength="20" readonly="readonly"></el-input></el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item :label="title2+'：'" prop="client">
+                            <el-input v-if="visible.client" v-model="form.clientName" maxlength="64" :readonly="!canEdit || readonly.consignee"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item :label="title0+'货人：'" prop="consignee"><el-input v-if="visible.consignee" v-model="form.consignee" maxlength="64" :readonly="!canEdit || readonly.consignee"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="联系电话：" prop="consigneePhone"><el-input v-if="visible.consigneePhone" v-model="form.consigneePhone" maxlength="11" :readonly="!canEdit || readonly.consigneePhone"></el-input></el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-form-item v-if="isIn" label="入库商品：">
+                    <el-table :data="form.items" border style="width: 100%">
+                        <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                        <el-table-column label="商品编码" width="130" prop="ccode"></el-table-column>
+                        <el-table-column label="商品名称" prop="cname"></el-table-column>
+                        <el-table-column label="商品规格" width="100" prop="productUnit"></el-table-column>
+                        <el-table-column label="包装规格" width="100" prop="packageUnit"></el-table-column>
+                        <el-table-column label="商品数量" width="100"><template slot-scope="scope"><el-input v-model="scope.row.productSum" maxlength="4" :readonly="!canEdit || readonly.items"></el-input></template></el-table-column>
+                        <el-table-column label="生产日期" width="150" prop="cdate">
+                            <template slot-scope="scope">
+                                <el-date-picker
+                                        v-model="scope.row.cdate"
+                                        type="date"
+                                        ::editable="false"
+                                        placeholder="选择日期"
+                                        value-format="yyyy-MM-dd HH:mm:ss" :readonly="!canEdit || readonly.items">
+                                </el-date-picker>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="选择仓库" width="130">
+                            <template slot-scope="scope">
+                                <el-select v-model="scope.row.storeGuid" filterable placeholder="选择仓库" class="handle-Melect mr10" @change="storeChanged(scope.row)" :disabled="!canEdit || readonly.items">
+                                    <el-option v-for="item in storeList" :key="item.guid" :label="item.cname" :value="item.guid"></el-option>
+                                </el-select>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="选择区域" width="130">
+                            <template slot-scope="scope">
+                                <el-select v-model="scope.row.regionGuid" filterable placeholder="选择区域" class="handle-Melect mr10" @change="storeAreaChanged(scope.row)" :disabled="!canEdit || readonly.items">
+                                    <el-option v-for="item in scope.row.areaList" :key="item.guid" :label="item.cname" :value="item.guid"></el-option>
+                                </el-select>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="选择号" width="180">
+                            <template slot-scope="scope">
+                                <el-select v-model="scope.row.regionInfoGuid" filterable placeholder="选择号" class="handle-Melect mr10" :disabled="!canEdit || readonly.items">
+                                    <el-option v-for="item in scope.row.placeList" :key="item.guid" :label="item.ccode+'号-'+'已使用'+item.cused+'/'+item.capacity" :value="item.guid"></el-option>
+                                </el-select>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-form-item>
+                <el-form-item v-if="!isIn" label="出库商品：">
+                    <el-table :data="form.items" border style="width: 100%">
+                        <el-table :data="form.items" border style="width: 100%">
+                            <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                            <el-table-column label="商品编码" width="130" prop="ccode"></el-table-column>
+                            <el-table-column label="商品名称" prop="cname"></el-table-column>
+                            <el-table-column label="商品规格" width="100" prop="productUnit"></el-table-column>
+                            <el-table-column label="包装规格" width="100" prop="packageUnit"></el-table-column>
+                            <el-table-column label="商品数量" width="100">
+                                <template slot-scope="scope">
+                                    <el-input v-model="scope.row.productSum" maxlength="4" :readonly="!canEdit || readonly.items"></el-input>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="单位" width="80">
+                                <template slot-scope="scope">
+                                    <el-select v-model="scope.row.unit" :disabled="!canEdit || readonly.items">
+                                        <el-option v-for="item in scope.row.unitSelect" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="仓库" width="100" prop="storeCname"></el-table-column>
+                            <el-table-column label="区域" width="80" prop="regionCname"></el-table-column>
+                            <el-table-column label="号" width="80" prop="regionInfoCname"></el-table-column>
+                        </el-table>
+                    </el-table>
+                </el-form-item>
+
+                <fieldset>
+                    <legend> 记录 </legend>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="物流单号：" prop="trackingNumber"><el-input v-if="visible.trackingNumber" v-model="form.trackingNumber" maxlength="32" :readonly="!canEdit || readonly.trackingNumber"></el-input></el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item :label="title1+'库时间：'" prop="deliveryTime">
+                                <el-date-picker v-if="visible.deliveryTime"
+                                                v-model="form.deliveryTime"
+                                                type="date"
+                                                :editable="false"
+                                                placeholder="选择日期"
+                                                value-format="yyyy-MM-dd HH:mm:ss" :readonly="!canEdit || readonly.deliveryTime">
+                                </el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="司机：" prop="driver"><el-input v-if="visible.driver" v-model="form.driver" maxlength="64" :readonly="!canEdit || readonly.driver"></el-input></el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="司机电话：" prop="driverPhone"><el-input v-if="visible.driverPhone" v-model="form.driverPhone" maxlength="11" :readonly="!canEdit || readonly.driverPhone"></el-input></el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-form-item :label="title3+'：'" prop="description"><el-input v-if="visible.description" type="textarea" v-model="form.description" :readonly="!canEdit || readonly.description"></el-input></el-form-item>
+                </fieldset>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                    <el-button size="small" type="normal" @click="editVisible = false">关闭</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog v-if="isIn" title="选择商品" :visible.sync="selectProductVisible" width="50%" custom-class="mod-el-dialog">
+            <div class="handle-box">
+                <div style="width: 100%" class="search-right">
+                    <el-row :gutter="20">
+                        <el-col :span="11">&nbsp;
+                        </el-col>
+                        <el-col :span="5">
+                            <el-select v-model="productParam.refSysParam" filterable placeholder="选择类别">
+                                <el-option v-for="item in productTypeList" :key="item.guid" :label="item.cname" :value="item.guid"></el-option>
+                            </el-select>
+                        </el-col>
+                        <el-col :span="5">
+                            <el-input v-model="productParam.condition" placeholder="商品编码或名称" @keyup.enter.native="search"></el-input>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-button type="primary" icon="search" @click="searchProduct">搜索</el-button>
+                        </el-col>
+                    </el-row>
+                </div>
+            </div>
+            <el-table :data="productList" border style="width: 100%">
+                <el-table-column type="index" :index="productIndexCal" fixed align="center" width="60" label="序号"></el-table-column>
+                <el-table-column label="选择" width="60"><template slot-scope="scope"><el-checkbox v-model="scope.row.selected" :disabled="!canEdit" @change="selectOneProduct(scope.row)"></el-checkbox></template></el-table-column>
+                <el-table-column label="商品编码" width="130" prop="ccode"></el-table-column>
+                <el-table-column label="商品名称" prop="cname"></el-table-column>
+                <el-table-column label="商品规格" width="130" prop="productUnit"></el-table-column>
+                <el-table-column label="包装规格" width="130" prop="packageUnit"></el-table-column>
+            </el-table>
+            <div class="handle-box">
+                <div class="search-left"></div>
+                <div class="search-right">
+                    <el-button type="info" @click="goPrePageProduct">上一页</el-button>
+                    {{productParam.page}}/{{parseInt((productParam.total+9)/productParam.pageSize)}}
+                    <el-button type="info" @click="goNextPageProduct">下一页</el-button>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button plain @click="selectProductVisible = false;">取 消</el-button>
+                <el-button type="primary" @click="selectProduct">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 编辑弹出框 -->
+        <el-dialog v-if="!isIn" title="选择商品" :visible.sync="selectProductVisible" width="60%" custom-class="mod-el-dialog">
+            <div class="handle-box">
+                <div style="width: 100%" class="search-right">
+                    <el-row :gutter="20">
+                        <el-col :span="11">&nbsp;
+                        </el-col>
+                        <el-col :span="5">
+                            <el-select v-model="productParam.typeGuid" filterable placeholder="选择类别">
+                                <el-option v-for="item in productTypeList" :key="item.guid" :label="item.cname" :value="item.guid"></el-option>
+                            </el-select>
+                        </el-col>
+                        <el-col :span="5">
+                            <el-input v-model="productParam.condition" placeholder="商品编码或名称" @keyup.enter.native="search"></el-input>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-button type="primary" icon="search" @click="searchProduct">搜索</el-button>
+                        </el-col>
+                    </el-row>
+                </div>
+            </div>
+            <el-table :data="productList" border style="width: 100%">
+                <el-table-column type="index" :index="productIndexCal" fixed align="center" width="60" label="序号"></el-table-column>
+                <el-table-column label="选择" align="center" width="60"><template slot-scope="scope"><el-checkbox v-model="scope.row.selected" :disabled="!canEdit" @change="selectOneProduct(scope.row)"></el-checkbox></template></el-table-column>
+                <el-table-column label="失效时间" align="center" width="100" prop="loseDate"></el-table-column>
+                <el-table-column label="入库单号" align="center" width="130" prop="ccode"></el-table-column>
+                <el-table-column label="商品编码" align="center" width="100" prop="pcode"></el-table-column>
+                <el-table-column label="商品名称" align="center" prop="cname"></el-table-column>
+                <el-table-column label="商品数量" align="center" width="100" prop="restNum"></el-table-column>
+                <el-table-column label="入库时间" align="center" width="100" prop="inputDate"></el-table-column>
+            </el-table>
+            <div class="handle-box">
+                <div class="search-left"></div>
+                <div class="search-right">
+                    <el-button type="info" @click="goPrePageProduct">上一页</el-button>
+                    {{productParam.page}}/{{parseInt((productParam.total+9)/productParam.pageSize)}}
+                    <el-button type="info" @click="goNextPageProduct">下一页</el-button>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="selectProductVisible = false;">取 消</el-button>
+                <el-button type="primary" @click="selectProduct">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 编辑弹出框 -->
+        <el-dialog v-if="isDept" title="选择部门" :visible.sync="selectLinkVisible" width="40%" custom-class="mod-el-dialog">
+            <div class="handle-box">
+                <div style="width: 100%" class="search-right">
+                    <el-row :gutter="20">
+                        <el-col :span="11">&nbsp;
+                        </el-col>
+                        <el-col :span="10">
+                            <el-input v-model="linkParam.condition" placeholder="部门名称或联系人或联系人电话" @keyup.enter.native="search"></el-input>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-button type="primary" icon="search" @click="searchLink">搜索</el-button>
+                        </el-col>
+                    </el-row>
+                </div>
+            </div>
+            <el-table :data="linkList" border style="width: 100%">
+                <el-table-column label="选择" width="60"><template slot-scope="scope"><el-checkbox v-model="scope.row.selected" :disabled="!canEdit" @change="selectOneVendor(scope.$index,scope.row)"></el-checkbox></template></el-table-column>
+                <el-table-column type="index" :index="linkIndexCal" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column label="部门名称" prop="cname"></el-table-column>
+                <el-table-column label="联系人" prop="linkManName"></el-table-column>
+                <el-table-column label="联系电话" prop="linkManPhone"></el-table-column>
+            </el-table>
+            <div class="handle-box">
+                <div class="search-left"></div>
+                <div class="search-right">
+                    <el-button type="info" @click="goPrePageLink">上一页</el-button>
+                    {{linkParam.page}}/{{parseInt((linkParam.total+9)/linkParam.pageSize)}}
+                    <el-button type="info" @click="goNextPageLink">下一页</el-button>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="selectLinkVisible = false;">取 消</el-button>
+                <el-button type="primary" @click="selectLink">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog v-if="!isDept" :title="'选择'+title2" :visible.sync="selectLinkVisible" width="40%" custom-class="mod-el-dialog">
+            <div class="handle-box">
+                <div style="width: 100%" class="search-right">
+                    <el-row :gutter="20">
+                        <el-col :span="6">&nbsp;
+                        </el-col>
+                        <el-col :span="10">
+                            <el-input v-model="linkParam.condition" placeholder="企业名称或联系人或联系人电话" @keyup.enter.native="search"></el-input>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-button type="primary" icon="search" @click="searchLink">搜索</el-button>
+                        </el-col>
+                    </el-row>
+                </div>
+            </div>
+            <el-table :data="linkList" border style="width: 100%">
+                <el-table-column label="选择" width="60"><template slot-scope="scope"><el-checkbox v-model="scope.row.selected" :disabled="!canEdit" @change="selectOneVendor(scope.$index,scope.row)"></el-checkbox></template></el-table-column>
+                <el-table-column type="index" :index="linkIndexCal" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column label="企业名称" prop="cname"></el-table-column>
+                <el-table-column label="联系人" prop="linkManName"></el-table-column>
+                <el-table-column label="联系电话" prop="linkManPhone"></el-table-column>
+            </el-table>
+            <div class="handle-box">
+                <div class="search-left"></div>
+                <div class="search-right">
+                    <el-button type="info" @click="goPrePageLink">上一页</el-button>
+                    {{linkParam.page}}/{{parseInt((linkParam.total+9)/linkParam.pageSize)}}
+                    <el-button type="info" @click="goNextPageLink">下一页</el-button>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="selectLinkVisible = false;">取 消</el-button>
+                <el-button type="primary" @click="selectLink">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 审核意见 -->
+        <el-dialog title="审核意见" :visible.sync="checkVisible" width="300px" center>
+            <div class="del-dialog-cnt"><el-input v-model="checkOpinion" maxlength="200"></el-input></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="checkVisible = false">取 消</el-button>
+                <el-button type="primary" @click="handleCheckIN2">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 显示出库码 -->
+        <el-dialog title="审核成功" :visible.sync="outputCodeVisible" width="300px" center>
+            <div class="del-dialog-cnt">请记下{{passwordAnotherName}}：<font color="red">{{outputCode}}</font></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="checkSuccess">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 确认出库码 -->
+        <el-dialog :title="passwordTitle" :visible.sync="confirmPasswordVisible" width="300px" center>
+            <div class="del-dialog-cnt">请输入{{passwordAnotherName}}:<el-input v-model="this.confirmPassword"></el-input></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="confirmPasswordVisible = false">取 消</el-button>
+                <el-button type="primary" @click="checkPassword">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 确认出库码 -->
+        <el-dialog :title="passwordTitle" :visible.sync="recordPasswordVisible" width="300px" center>
+            <div class="del-dialog-cnt">请输入{{passwordAnotherName}}:<el-input v-model="this.confirmPassword"></el-input></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="recordPasswordVisible = false">取 消</el-button>
+                <el-button type="primary" @click="handleCheckIN3">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 确认出库码 -->
+        <el-dialog title="单据已归档，删除需审核" :visible.sync="delCheckVisible" width="300px" center>
+            <div class="del-dialog-cnt">请输入删除意见:<el-input v-model="delOpinion"></el-input></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delCheckVisible = false">取 消</el-button>
+                <el-button type="primary" @click="confirmDelCheck">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 仓库余量不足警告 -->
+        <el-dialog title="警告" :visible.sync="storeWarnVisible" width="300px" center>
+            <div class="del-dialog-cnt">{{this.warning}}</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="storeWarnVisible = false">取 消</el-button>
+                <el-button type="primary" @click="confirmStoreWarn">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    import baseMixin from '../../common/tableBase';
+    import checkMixin from '../../common/check';
+    //引入方法
+    import {formatDate} from '../../common/date.js'
+    //定义数据
+    export default {
+        mixins: [baseMixin, checkMixin],
+        data() {
+            return {
+                //修改接口及加上接口文件
+                menuPosition: '',
+                //processId: 'd7291435fed44a80b680484ac32693c3',
+                taskId: '',
+                Urls: {
+                    getListData: '/workFlow/userTask',
+                    getItems: '/purchase/inquireByNo',
+                    saveForm: '/purchase/save',
+                    deleteForm: '/workFlow/delOrderdetail',
+                    delCheckUrl: '/workFlow/auditDelete',
+                    checkForm: '/workFlow/checkOrderdetail',
+                    getVendorList: '/user/getCompany',
+                    getLinkList: '/user/getLinkMan',
+                    getProductList: '/zhccproduct/chooseProduct',
+                    getProductTypeList: '/zhccproduct/type',
+                    getOperatorList: '/workFlow/findOperatorAll',
+                    getFlowList: '/workFlow/findNodeInfoByProcessId',
+                    getStoreList: '/zhccstore/chooseStore',
+                    getStoreAreaList: '/zhccstore/chooseRegion',
+                    getStorePlaceList: '/zhccstore/chooseRegionInfo',
+                    getPageRights: '/workFlow/orderSaveWin',
+                    getPageRights2: '/workFlow/orderCompileWin'
+                },
+                listParam: {
+                    client: "",
+                    menuPosition: '',
+                    status: "",
+                    processId: "",
+                    operator: "",
+                    consignee: "",
+                    consigneePhone: "",
+                    trackingNumber: '',
+                    currentStep: ''
+                    //程序生成
+                }
+            }
+        },
+        created() {
+            this.setMenuPos();
+        },
+        watch: {},
+        computed: {},
+        methods: {
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-flow-box{
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        border:1px solid rgba(166,207,76,1);
+        font-size:11px;
+        line-height: 24px;
+        height:24px;
+        overflow: hidden;
+        padding-left: 2px;
+        letter-spacing: 3px;
+        border-radius: 3px;
+    }
+    .flow-box0{
+        color:black;
+        background-color: transparent;
+    }
+    .flow-box1{
+        color:white;
+        background-color:  rgba(166,207,76,1);
+    }
+    .join-line{
+        position: relative;
+        display: inline-block;
+        width:10px;
+        height:4px;
+        background-color: rgba(166,207,76,1);
+        top:-10px;
+    }
+    fieldset{
+        border:1px solid #d5e2d0;
+        border-radius: 5px;
+        margin: 10px;
+    }
+    legend{
+        margin-left: 50px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+</style>

@@ -1,0 +1,32 @@
+import Vue from 'vue';
+import App from './App';
+import router from './router';
+import ElementUI from 'element-ui';
+import "babel-polyfill";
+import moment from 'moment'
+import Globe from './components/common/Globe'
+import './assets/iconfont/iconfont.css'
+import directives from './components/directives';
+import filters from './components/filters';
+
+Vue.use(ElementUI, { size: 'small' });
+Vue.prototype.moment = moment;
+Vue.prototype.globe = Globe;
+
+//全局定义验证规则
+Vue.prototype.phoneRule=(rule,value,callback)=>{
+    const reg = /^[1][2,3,4,5,6,7,8][0-9]{9}$/
+    if (!value){
+        callback(new Error('此字段为必填'))
+    }else if (!reg.test(value)){
+        callback(new Error('请输入正确的11位数字的手机号码'))
+    }else {
+        callback()
+    }
+};
+
+
+new Vue({
+    router,
+    render: h => h(App)
+}).$mount('#app');

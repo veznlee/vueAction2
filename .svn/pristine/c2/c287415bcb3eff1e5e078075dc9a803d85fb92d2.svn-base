@@ -1,0 +1,14 @@
+<template>
+
+</template>
+
+<script>
+    let hostUrl = 'http://192.168.1.139'
+    export default {
+        hostUrl
+    }
+</script>
+
+<style scoped>
+
+</style>

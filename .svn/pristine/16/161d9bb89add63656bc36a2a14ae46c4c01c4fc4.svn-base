@@ -1,0 +1,667 @@
+<template>
+    <div class="table">
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item><i class="el-icon-tickets"></i>业务设置</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="container">
+            <div class="handle-box">
+            </div>
+            <el-table :data="tableData" border style="width: 100%" v-loading="listLoading" element-loading-text="正在载入数据，请稍候…">
+                <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column prop="businessCaseNumber" align="center" label="业务编码" sortable width="150"></el-table-column>
+                <el-table-column prop="type" align="center" label="业务类型" sortable width="150"></el-table-column>
+                <el-table-column prop="name" align="center" label="业务名称" sortable width="150"></el-table-column>
+                <el-table-column align="center" label="已发布" sortable width="150">
+                    <template slot-scope="scope">
+                        {{getPublishName(scope.row.isStartUsing)}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="remarks" align="center" label="备注"></el-table-column>
+
+                <el-table-column label="操作" align="center" width="200">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row ,scope.row.name)">流程设计</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="70%" custom-class="mod-el-dialog">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="100px">
+                <div class="el-aside" style="display:inline-block;width:40%;">
+                    <div v-for="(item,index) in itemsData" style="width: 100%;">
+                        <el-button :class="'handle-button-'+ifSelect(index)" style=" " :key="item.id" @click="handleExpand(item,index)">
+                            {{item.name}}
+                        </el-button>
+                        <el-button style="width: 15%;margin:0;" v-show="index<totalRow-1 && index==selectedProcess"  type="primary" @click="addFlow">新增</el-button>
+                        <el-button style="width: 15%;margin:0;" v-show="index!=0 && index!=totalRow-1 && index==selectedProcess" type="danger" @click="deleteFlow">删除</el-button>
+                        <el-button style="width: 15%;margin:0;" v-show="index==selectedProcess" type="primary" @click="setForm">表单</el-button>
+                        <img v-if="index<totalRow-2" style="position: relative;display:block;left:calc(25% - 35px);" src="../../../assets/arrow-down.png">
+                        <div v-if="index==totalRow-2" style="display: block;height:38px;"></div>
+                    </div>
+                </div>
+                <div class="el-main" style="display:inline-block;width:50%">
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="步骤名称：" prop="name">
+                                <el-input v-model="form.name"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="菜单位置：" prop="menuPosition">
+                                <el-select v-model="form.menuPosition">
+                                    <el-option v-for="item in menuList" :key="item.gUID" :value="item.gUID" :label="item.cNAME"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="步骤类型：" prop="stepType">
+                                <el-select v-model="form.stepType">
+                                    <el-option v-for="item in options" :key="item.value" :value="item.value" :label="item.text"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="隐藏：">
+                                <el-checkbox v-model="form.isShow"></el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24">
+                            <el-form-item label="经办人：" prop="doby">
+                                <div>
+                                    <el-button type="primary" @click="addDoby">添加</el-button>
+                                    <div v-for="(dobyItem,index) in form.doby" style="display: inline-block;border:1px solid #c0e2c0;border-radius: 3px;margin-right: 10px;height:24px;line-height: 24px;padding-left: 5px;padding-right: 5px;cursor:pointer">{{dobyItem.name}} <a @click="deleteDobyItem(index)" style="color:rgba(252,151,70,1)">X</a></div>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24">
+                            <el-form-item label="备注：">
+
+                                <el-input type="textarea" :rows="3" :cols="20" v-model="form.remark"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </div>
+            </el-form>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="handleClose">关 闭</el-button>
+                <el-button v-if="hasPublished=='1'" type="primary" @click="handlePublish">发 布</el-button>
+                <el-button type="primary" @click="saveData">保 存</el-button>
+            </span>
+        </el-dialog>
+        <!-- 表单弹出框 -->
+        <el-dialog :title="flowFormTitle" :visible.sync="editFlowVisible" width="60%" custom-class="mod-el-dialog">
+            <el-form :rules="rules" ref="flowForm" :model="formFormData" status-icon label-width="100px">
+                <fieldset>
+                    <legend> 列表按钮 </legend>
+                    <div v-for="item in formListData.data" class="input-block">
+                        <div v-if="item.name=='show'"><el-checkbox v-model="item.isEnable"></el-checkbox> 查看 </div>
+                        <div v-if="item.name=='transaction'"><el-checkbox v-model="item.isEnable"></el-checkbox> 办理 别名：<el-input type="text" v-model="item.anotherName" class="input-alias"></el-input></div>
+                        <div v-if="item.name=='delete'"><el-checkbox v-model="item.isEnable"></el-checkbox> 删除 </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend> 表单字段 </legend>
+                    <div v-for="item in formFormData.orderFieldDesignings" class="input-column">
+                        <div class="input-title">{{item.name}}</div><el-checkbox v-model="item.isRequired"></el-checkbox> 必填  权限<el-select v-model="item.permission" placeholder="选择权限" class="handle-select mr10">
+                        <el-option v-for="pitem in permissionList" :key="pitem.id" :label="pitem.name" :value="pitem.id"></el-option>
+                    </el-select>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend> 表单按钮 </legend>
+                    <div v-for="item in formFormData.orderHandleDesignings" class="input-block">
+                        <div v-if="item.name=='save'"><el-checkbox v-model="item.isEnable"></el-checkbox> 保存 </div>
+                        <div v-if="item.name=='reset'"><el-checkbox v-model="item.isEnable"></el-checkbox> 重置 </div>
+                        <div v-if="item.name=='close'"><el-checkbox v-model="item.isEnable"></el-checkbox> 关闭 </div>
+                        <div v-if="item.name=='transaction'">
+                            <el-checkbox v-model="item.isEnable"></el-checkbox> 办理 别名：<el-input type="text" v-model="item.anotherName" class="input-alias"></el-input>
+                            <el-checkbox v-model="item.isGeneratePassword" label="生成下一步骤密码"></el-checkbox> 密码别名：<el-input type="text" v-model="item.passwordAnotherName" class="input-alias"></el-input>
+                        </div>
+                    </div>
+                </fieldset>
+            </el-form>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="handleFormClose">关 闭</el-button>
+                <el-button type="primary" @click="saveFormData">保 存</el-button>
+            </span>
+        </el-dialog>
+        <!-- 经办人弹出框 -->
+        <el-dialog title="选取经办人" :visible.sync="dobyVisible" width="20%">
+            <el-form :rules="rules" ref="form" :model="form" status-icon label-width="80px">
+                <el-tree
+                        ref="tree"
+                        :data="dobyTreeData"
+                        show-checkbox
+                        check-strictly
+                        node-key="id"
+                        highlight-current
+                        :props="defaultProps">
+                </el-tree>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="dobyVisible = false">取 消</el-button>
+                <el-button type="primary" @click="confirmDoby">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    import baseMixin from '../../common/tableBase';
+    //引入方法
+    import {formatDate} from '../../common/date.js'
+    //定义数据
+    export default {
+        mixins: [baseMixin],
+        data() {
+            return {
+                host: 1,
+                //修改接口及加上接口文件
+                Urls: {
+                    tableList: '/windowsInfo/findBaseProcessInfo',
+                    formList: '/windowsInfo/taskFindByProcessIdOrId',
+                    tableUpdate: '/windowsInfo/saveBatchTaskNodeInfo',
+                    dobyList: '/windowsInfo/getUserByDepartment',
+                    areaListUrl: '/sysparameters/choseArea',
+                    publishFlowUrl: '/process/deploy',
+                    menuListUrl: '/windowsInfo/findMenu',
+                    getListDataUrl:'/windowsInfo/designHomePageFindByTaskId',
+                    getFormDataUrl:'/windowsInfo/designOrderFindByTaskId',
+                    saveFormListUrl:'/windowsInfo/designHomePage',
+                    saveFormFormUrl:'/windowsInfo/designOrder',
+                },
+                listParam: {
+                    //程序生成
+                },
+                form: {
+                    head: {},//程序生成
+                    items: {
+                        name: '',
+                        isshow: '0',
+                        steptype: '',
+                        menuposition: '',
+                        assignee: '',
+                        remark: '',
+                    }//程序生成
+                },
+                flowForm:{},
+                rules: {
+                    name: [{required: true, message: '此字段为必填', trigger: 'blur'}],
+                    stepType: [{required: true, message: '此字段为必填', trigger: 'blur'}],
+                    menuPosition: [{required: true, message: '此字段为必填', trigger: 'blur'}],
+                    assignee: [{required: true, message: '此字段为必填', trigger: 'blur'}],
+                },
+                itemsParam: {
+                    guid: ''
+                },
+                formData:{
+                    itemsData:[{id:1}]
+                },
+                itemsData: [],
+                menuList: [],
+                options: [{value: 0, text: "办理"}, {value: 1, text: "审核"},],
+                selectedProcess: 0,
+                totalRow: 0,
+                hasPublished: 0,
+                editFlowVisible: false,
+                flowFormTitle:'',
+                formFormData:{},
+                formListData:{},
+                changed: false,
+                dobyTreeData: [],
+                dobyVisible: false,
+                defaultProps: {
+                    children: 'children',
+                    label: 'name'
+                },
+                permissionList:[{id:0,name:'可操作'},{id:1,name:'可视'},{id:2,name:'不可视'}]
+            }
+        },
+        created() {
+        },
+        watch: {
+        },
+        computed: {},
+        methods: {
+            ifSelect(idx){
+                if (idx == this.selectedProcess)
+                    return 'sel';
+                else
+                    return 'unsel';
+            },
+            getPublishName(val){
+                return val == 1 ? "是" : "否";
+            },
+            resetForm() {
+                this.form = {
+                    name: '',
+                    isshow: '0',
+                    steptype: '',
+                    menuposition: '',
+                    assignee: '',
+                    remark: '',
+                }
+            },
+            getTableData() {
+                this.listLoading = true;
+                request({
+                    host: 1,
+                    url: this.Urls.tableList,
+                    method: 'get',
+                    params: this.listParam
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.tableData = response.data.data;
+                        this.total = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+            getMenuData() {
+                this.listLoading = true;
+                request({
+                    host: 1,
+                    url: this.Urls.menuListUrl,
+                    method: 'get',
+                    params: {}
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.menuList = response.data.data;
+                        this.listLoading = false;
+                    }
+                })
+            },
+            // 保存编辑
+            saveData() {
+                for (let i=0;i<this.itemsData.length;i++) {
+                    this.itemsData[i].assignee = "";
+                    this.itemsData[i].department = "";
+                    this.itemsData[i].isshow=(this.itemsData[i].isshow?1:0);
+                    for (let j = 0; j < this.itemsData[i].doby.length; j++) {
+                        if (this.itemsData[i].doby[j].type == 0)
+                            this.itemsData[i].department += this.itemsData[i].doby[j].id + ",";
+                        else
+                            this.itemsData[i].assignee += this.itemsData[i].doby[j].id + ",";
+                    }
+                    if (this.itemsData[i].assignee.length > 1)
+                        this.itemsData[i].assignee = this.itemsData[i].assignee.substring(0, this.itemsData[i].assignee.length - 1);
+
+                    if (this.itemsData[i].department.length > 1)
+                        this.itemsData[i].department = this.itemsData[i].department.substring(0, this.itemsData[i].department.length - 1);
+                }
+                let data={taskNodeInfo:this.itemsData};
+                //var data=this.formData
+                request({
+                    host: 1,
+                    url: this.Urls.tableUpdate,
+                    method: 'post',
+                    data
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.getTableData();
+                        this.editVisible = false;
+                        this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                        this.oData = JSON.stringify(this.itemsData);
+                    }
+                })
+            },
+            handleExpand(item, idx){
+                this.form = item;
+                this.selectedProcess = idx;
+            },
+            //表单编辑
+            handleEdit(index, row, name, isStartUsing) {
+                this.formTitle = name + (isStartUsing ? "--已发布" : "--未发布");
+                this.hasPublished = isStartUsing;
+                this.idx = index;
+                this.guid = this.tableData[index].id;
+                this.dialogStatus = 'update';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                });
+                request({
+                    host: 1,
+                    url: this.Urls.formList,
+                    method: 'get',
+                    params: {processId: this.guid}
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.totalRow = response.data.data.length;
+                        this.itemsData = response.data.data;
+                        this.editVisible = true;
+                        for(let i=0;i<this.itemsData.length;i++){
+                            this.itemsData[i].isshow=(this.itemsData[i].isshow=="1");
+                            this.itemsData[i].doby=[];
+                            if(this.itemsData[i].department!=""){
+                                let dp=this.itemsData[i].department;
+                                for(let j=0;j<dp.split(",").length;j++){
+                                    this.itemsData[i].doby.push({id:dp.split(",")[j].split(":")[0],name:dp.split(",")[j].split(":")[1],type:0});
+                                }
+                            }
+                            if(this.itemsData[i].assignee!=""){
+                                let dp=this.itemsData[i].assignee;
+                                for(let j=0;j<dp.split(",").length;j++){
+                                    this.itemsData[i].doby.push({id:dp.split(",")[j].split(":")[0],name:dp.split(",")[j].split(":")[1],type:1});
+                                }
+                            }
+                        }
+                        this.handleExpand(this.itemsData[0], 0);
+                        this.getMenuData();
+                        this.oData = JSON.stringify(this.itemsData);
+                    }
+                })
+            },
+            handlePublish(){
+                if (this.oData != JSON.stringify(this.itemsData)) {
+                    alert("请保存以后发布");
+                    return;
+                }
+                request({
+                    host: 1,
+                    url: this.Urls.publishFlowUrl,
+                    method: 'post',
+                    params: {id: this.guid}
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.hasPublished = 1;
+                        this.getMenuData();
+                    }
+                })
+            },
+            handleClose(){
+                if (this.oData != JSON.stringify(this.itemsData)) {
+                    if (confirm("修改尚未保存，确定关闭？")) {
+                        this.editVisible = false;
+                    }
+                }
+                else
+                    this.editVisible = false;
+            },
+            addFlow(){
+                this.itemsData.splice(this.selectedProcess + 1, 0, {
+                    assignee: "",
+                    department: "",
+                    id: "",
+                    isShow: 1,
+                    menuPosition: "0",
+                    name: "新增审核",
+                    processId: this.guid,
+                    remark: "",
+                    sort: 1,
+                    stepType: 1
+                });
+                for (let i = 0; i < this.itemsData.length; i++) {
+                    this.itemsData.sort = i;
+                }
+                this.totalRow = this.itemsData.length;
+            },
+            deleteFlow(){
+                this.itemsData.splice(this.selectedProcess, 1);
+                this.totalRow = this.itemsData.length;
+                this.handleExpand(this.itemsData[0], 0)
+            },
+            deleteDobyItem(idx){
+                this.editVisible = false;
+                this.form.doby.splice(idx, 1);
+                this.itemsData[this.selectedProcess].doby = this.form.doby;
+                this.editVisible = true;
+            },
+            setForm(){
+                this.flowFormTitle=this.itemsData[this.selectedProcess].name+"-表单配置";
+                //this.editVisible=false;
+                this.editFlowVisible=true;
+                request({
+                    host: 1,
+                    url: this.Urls.getListDataUrl,
+                    method: 'get',
+                    params: {taskId: this.itemsData[this.selectedProcess].id}
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.formListData = response.data;
+                        for(let i=0;i<this.formListData.data.length;i++)
+                        {
+                            this.formListData.data[i].isEnable=(this.formListData.data[i].isEnable=="1");
+                        }
+                        request({
+                            host: 1,
+                            url: this.Urls.getFormDataUrl,
+                            method: 'get',
+                            params: {taskId: this.itemsData[this.selectedProcess].id}
+                        }).then(response => {
+                            if (response.data.code == 0) {
+                                this.formFormData = response.data.data;
+//                                this.formFormData.data=this.formListData.data;
+                                for(let i=0;i<this.formFormData.orderFieldDesignings.length;i++)
+                                {
+                                    this.formFormData.orderFieldDesignings[i].isRequired=(this.formFormData.orderFieldDesignings[i].isRequired=="1");
+                                }
+                                for(let i=0;i<this.formFormData.orderHandleDesignings.length;i++)
+                                {
+                                    this.formFormData.orderHandleDesignings[i].isEnable=(this.formFormData.orderHandleDesignings[i].isEnable=="1");
+                                    this.formFormData.orderHandleDesignings[i].isGeneratePassword=(this.formFormData.orderHandleDesignings[i].isGeneratePassword=="1");
+                                }
+                                console.log(this.formFormData)
+                            }
+                        })
+                    }
+                })
+            },
+            handleFormClose(){
+                this.editFlowVisible=false;
+            },
+            saveFormData(){
+                let data=this.formListData;
+                for(let i=0;i<data.data.length;i++)
+                {
+                    data.data[i].isEnable=(data.data[i].isEnable?"1":"0");
+                }
+                request({
+                    host: 1,
+                    url: this.Urls.saveFormListUrl,
+                    method: 'post',
+                    data
+                }).then(response => {
+                    let data=this.formFormData;
+                    for(let i=0;i<data.orderFieldDesignings.length;i++)
+                    {
+                        data.orderFieldDesignings[i].isRequired=(data.orderFieldDesignings[i].isRequired?"1":"0");
+                    }
+                    for(let i=0;i<data.orderHandleDesignings.length;i++)
+                    {
+                        data.orderHandleDesignings[i].isEnable=(data.orderHandleDesignings[i].isEnable?"1":"0");
+                        data.orderHandleDesignings[i].isGeneratePassword=(data.orderHandleDesignings[i].isGeneratePassword?"1":"0");
+                    }
+                    if (response.data.code == 0) {
+                        let data=this.formFormData;
+                        request({
+                            host: 1,
+                            url: this.Urls.saveFormFormUrl,
+                            method: 'post',
+                            data
+                        }).then(response => {
+                            if (response.data.code == 0) {
+                                this.editFlowVisible = false;
+                                this.$message.success(`保存成功`);
+                            }
+                        })
+                    }
+                })
+            },
+            addDoby(){
+                this.dobyVisible = true;
+                request({
+                    host: 1,
+                    url: this.Urls.dobyList,
+                    method: 'get',
+                    params: {}
+                }).then(response => {
+                    if (response.data.code == 0) {
+                        this.dobyTreeData = response.data.data;
+                        let keys = [];
+                        for (let i = 0; i < this.dobyTreeData.length; i++) {
+                            let key = this.dobyTreeData[i].id;
+                            for (let j = 0; j < this.form.doby.length; j++) {
+                                if (key == this.form.doby[j].id) {
+                                    keys.push(key);
+                                }
+                            }
+                        }
+                        this.$refs.tree.setCheckedKeys(keys);
+                    }
+                })
+            },
+            confirmDoby(){
+                this.form.doby = [];
+                let keys = this.$refs.tree.getCheckedKeys();
+                for (let i = 0; i < this.dobyTreeData.length; i++) {
+                    for (let j = 0; j < keys.length; j++) {
+                        if (keys[j] == this.dobyTreeData[i].id)
+                            this.form.doby.push({
+                                id: this.dobyTreeData[i].id,
+                                name: this.dobyTreeData[i].name,
+                                type: 0
+                            });
+                    }
+                    if (this.dobyTreeData[i].children.length > 0) {
+                        for (let k = 0; k < this.dobyTreeData[i].children.length; k++) {
+                            for (let j = 0; j < keys.length; j++) {
+                                if (keys[j] == this.dobyTreeData[i].children[k].id)
+                                    this.form.doby.push({
+                                        id: this.dobyTreeData[i].children[k].id,
+                                        name: this.dobyTreeData[i].children[k].name,
+                                        type: 1
+                                    });
+                            }
+                        }
+                    }
+                }
+                this.itemsData[this.selectedProcess].doby = this.form.doby;
+                this.dobyVisible = false;
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .dialogTop{
+        background-color: #c0df7c;
+        padding: 8px 0;
+        margin: -10px -20px 20px !important;
+    }
+    .handle-box {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .handle-box .search-left{
+        flex: 1;
+    }
+    .handle-select {
+        width: 200px;
+    }
+    .handle-input {
+        width: 200px;
+        display: inline-block;
+    }
+    .del-dialog-cnt{
+        font-size: 16px;
+        text-align: center
+    }
+    .area-select{
+
+    }
+    .handle-button-sel {
+        width: 50%;
+        height: 50px;
+        margin: 0;
+        background-color: #f3fff0;
+        border: 1px solid #c0e2c0;
+    }
+    .handle-button-unsel {
+        width: 50%;
+        height: 50px;
+        margin: 0;
+        background-color: #e3ffe0;
+        border: 1px solid #c0e2c0;
+    }
+    fieldset{
+        border:1px solid #d5e2d0;
+        border-radius: 5px;
+        margin: 10px;
+    }
+    legend{
+        margin-left: 50px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    div{
+    }
+    .input-block{
+        display: inline-block;
+        /*white-space: nowrap;*/
+        border:1px solid #ddd;
+        border-radius: 3px;
+        margin: 10px;
+        margin-left: 20px;
+        padding-top: 1px;
+        line-height: 32px;
+        /*width:170px;*/
+        padding-left:10px;
+        padding-right:10px;
+        background-color: #f2ffea;
+    }
+    .input-column{
+        display: inline-block;
+        white-space: nowrap;
+        border:1px solid #ddd;
+        border-radius: 3px;
+        margin: 10px;
+        margin-left: 20px;
+        /*height: 32px;*/
+        line-height: 32px;
+        /*width:200px;*/
+        padding-left:10px;
+        padding-right:10px;
+        background-color: #f2ffea;
+    }
+    .input-alias{
+        width:100px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .input-title{
+        /*width:100px;*/
+    }
+    .handle-select{
+        width: 100px;
+    }
+    .el-input__inner{
+        padding: 0;
+    }
+</style>

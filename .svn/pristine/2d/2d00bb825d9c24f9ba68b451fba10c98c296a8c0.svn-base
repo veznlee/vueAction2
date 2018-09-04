@@ -1,0 +1,48 @@
+import request from '../utils/request'
+
+//tableData
+export function tableList(param) {
+    return request({
+        url: '/dept/list',
+        method: 'get',
+        params: param
+    })
+}
+export function tableAdd(data) {
+    return request({
+        url: '/dept/save',
+        method: 'post',
+        data
+    })
+}
+export function tableUpdate(data) {
+    return request({
+        url: '/dept/update',
+        method: 'post',
+        data
+    })
+}
+export function tableDelete(param) {
+    return request({
+        url: '/dept/remove',
+        method: 'get',
+        params: param
+    })
+}
+
+//下拉菜单列表
+export function selectUserList(param) {
+    return request({
+        url: '/dept/selectList',
+        method: 'get',
+        params: {param}
+    })
+}
+//状态
+export function statusList(param) {
+    return request({
+        url: '/user/status',
+        method: 'get',
+        params: param
+    })
+}

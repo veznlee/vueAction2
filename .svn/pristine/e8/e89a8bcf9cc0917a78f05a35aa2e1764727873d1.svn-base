@@ -1,0 +1,598 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>IconFont</title>
+    <link rel="stylesheet" href="demo.css">
+    <link rel="stylesheet" href="iconfont.css">
+</head>
+<body>
+    <div class="main markdown">
+        <h1>IconFont 图标</h1>
+        <ul class="icon_lists clear">
+            
+                <li>
+                <i class="icon iconfont icon-tuichu"></i>
+                    <div class="name">退出</div>
+                    <div class="fontclass">.icon-tuichu</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-caizhai"></i>
+                    <div class="name">采摘</div>
+                    <div class="fontclass">.icon-caizhai</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-fertilize"></i>
+                    <div class="name">施肥</div>
+                    <div class="fontclass">.icon-fertilize</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-icon"></i>
+                    <div class="name">新增</div>
+                    <div class="fontclass">.icon-icon</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-sapling"></i>
+                    <div class="name">测土施肥</div>
+                    <div class="fontclass">.icon-sapling</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongji"></i>
+                    <div class="name">农机</div>
+                    <div class="fontclass">.icon-nongji</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyao"></i>
+                    <div class="name">农药</div>
+                    <div class="fontclass">.icon-nongyao</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-faxian"></i>
+                    <div class="name">发现</div>
+                    <div class="fontclass">.icon-faxian</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-caizhai1"></i>
+                    <div class="name">采摘</div>
+                    <div class="fontclass">.icon-caizhai1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-cangku"></i>
+                    <div class="name">仓库</div>
+                    <div class="fontclass">.icon-cangku</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-sousuowushuju"></i>
+                    <div class="name">搜索_无数据</div>
+                    <div class="fontclass">.icon-sousuowushuju</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-buchongiconsvg01"></i>
+                    <div class="name">异常</div>
+                    <div class="fontclass">.icon-buchongiconsvg01</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-kccx"></i>
+                    <div class="name">库存查询</div>
+                    <div class="fontclass">.icon-kccx</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyaohuafei"></i>
+                    <div class="name">农药化肥</div>
+                    <div class="fontclass">.icon-nongyaohuafei</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shifei"></i>
+                    <div class="name">施肥（基肥）</div>
+                    <div class="fontclass">.icon-shifei</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-icon1"></i>
+                    <div class="name">添加</div>
+                    <div class="fontclass">.icon-icon1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-06"></i>
+                    <div class="name">关闭</div>
+                    <div class="fontclass">.icon-06</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shop-manage"></i>
+                    <div class="name">店铺管理</div>
+                    <div class="fontclass">.icon-shop-manage</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-sell-set"></i>
+                    <div class="name">出售价格设置</div>
+                    <div class="fontclass">.icon-sell-set</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-pinglun"></i>
+                    <div class="name">评论</div>
+                    <div class="fontclass">.icon-pinglun</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-cetushifei"></i>
+                    <div class="name">测土施肥</div>
+                    <div class="fontclass">.icon-cetushifei</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-cetushifei1"></i>
+                    <div class="name">测土施肥</div>
+                    <div class="fontclass">.icon-cetushifei1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-fertilize-copy"></i>
+                    <div class="name">施肥</div>
+                    <div class="fontclass">.icon-fertilize-copy</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-seed"></i>
+                    <div class="name">emi种子</div>
+                    <div class="fontclass">.icon-seed</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-medical-box"></i>
+                    <div class="name">医药箱</div>
+                    <div class="fontclass">.icon-medical-box</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shangpin"></i>
+                    <div class="name">商品</div>
+                    <div class="fontclass">.icon-shangpin</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shifei1"></i>
+                    <div class="name">施肥</div>
+                    <div class="fontclass">.icon-shifei1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-riqi"></i>
+                    <div class="name">日期</div>
+                    <div class="fontclass">.icon-riqi</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-user"></i>
+                    <div class="name">用户</div>
+                    <div class="fontclass">.icon-user</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-supplier"></i>
+                    <div class="name">供应商</div>
+                    <div class="fontclass">.icon-supplier</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-kucun"></i>
+                    <div class="name">库存</div>
+                    <div class="fontclass">.icon-kucun</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-logo"></i>
+                    <div class="name">天仙农场icon</div>
+                    <div class="fontclass">.icon-logo</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-caigou-apply"></i>
+                    <div class="name">采购申请</div>
+                    <div class="fontclass">.icon-caigou-apply</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-zanwushuju"></i>
+                    <div class="name">暂无数据</div>
+                    <div class="fontclass">.icon-zanwushuju</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-guanbi"></i>
+                    <div class="name">关闭</div>
+                    <div class="fontclass">.icon-guanbi</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-purchase-apply"></i>
+                    <div class="name">采购申请</div>
+                    <div class="fontclass">.icon-purchase-apply</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-saoyisao"></i>
+                    <div class="name">扫一扫</div>
+                    <div class="fontclass">.icon-saoyisao</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shezhi"></i>
+                    <div class="name">设置</div>
+                    <div class="fontclass">.icon-shezhi</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-money-apply"></i>
+                    <div class="name">采购_费用申请</div>
+                    <div class="fontclass">.icon-money-apply</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shifei2"></i>
+                    <div class="name">施肥</div>
+                    <div class="fontclass">.icon-shifei2</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyaocanliu"></i>
+                    <div class="name">农药残留</div>
+                    <div class="fontclass">.icon-nongyaocanliu</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-yonghu"></i>
+                    <div class="name">用户</div>
+                    <div class="fontclass">.icon-yonghu</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-zhibaocaizhai"></i>
+                    <div class="name">植保采摘</div>
+                    <div class="fontclass">.icon-zhibaocaizhai</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-vip-manage"></i>
+                    <div class="name">会员管理</div>
+                    <div class="fontclass">.icon-vip-manage</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-fertilizer"></i>
+                    <div class="name">肥料</div>
+                    <div class="fontclass">.icon-fertilizer</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-feed"></i>
+                    <div class="name">饲料1</div>
+                    <div class="fontclass">.icon-feed</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-lease-plan"></i>
+                    <div class="name">出租计划</div>
+                    <div class="fontclass">.icon-lease-plan</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-lease"></i>
+                    <div class="name">销售出库单</div>
+                    <div class="fontclass">.icon-lease</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-true-check"></i>
+                    <div class="name">真伪及保障查询</div>
+                    <div class="fontclass">.icon-true-check</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-_nongyao"></i>
+                    <div class="name">02_农药</div>
+                    <div class="fontclass">.icon-_nongyao</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-index"></i>
+                    <div class="name">首页</div>
+                    <div class="fontclass">.icon-index</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-vip-bill"></i>
+                    <div class="name">会员账单</div>
+                    <div class="fontclass">.icon-vip-bill</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-tongzhi"></i>
+                    <div class="name">通知</div>
+                    <div class="fontclass">.icon-tongzhi</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-store"></i>
+                    <div class="name">仓库</div>
+                    <div class="fontclass">.icon-store</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyao1"></i>
+                    <div class="name">农药</div>
+                    <div class="fontclass">.icon-nongyao1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-datashow"></i>
+                    <div class="name">数据</div>
+                    <div class="fontclass">.icon-datashow</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-pro-manage"></i>
+                    <div class="name">商品管理</div>
+                    <div class="fontclass">.icon-pro-manage</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shouyedianji"></i>
+                    <div class="name">首页</div>
+                    <div class="fontclass">.icon-shouyedianji</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-edit"></i>
+                    <div class="name">编辑</div>
+                    <div class="fontclass">.icon-edit</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-lease-contract"></i>
+                    <div class="name">出租合同</div>
+                    <div class="fontclass">.icon-lease-contract</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-xuanze"></i>
+                    <div class="name">选择</div>
+                    <div class="fontclass">.icon-xuanze</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyejishu"></i>
+                    <div class="name">农业技术</div>
+                    <div class="fontclass">.icon-nongyejishu</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shop"></i>
+                    <div class="name">商铺</div>
+                    <div class="fontclass">.icon-shop</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-zhengjian"></i>
+                    <div class="name">证件</div>
+                    <div class="fontclass">.icon-zhengjian</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongchanpincaizhai"></i>
+                    <div class="name">农产品采摘</div>
+                    <div class="fontclass">.icon-nongchanpincaizhai</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-cetushifei2"></i>
+                    <div class="name">测土施肥</div>
+                    <div class="fontclass">.icon-cetushifei2</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-cetushifei3"></i>
+                    <div class="name">测土施肥</div>
+                    <div class="fontclass">.icon-cetushifei3</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shifei3"></i>
+                    <div class="name">施肥</div>
+                    <div class="fontclass">.icon-shifei3</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shiyao"></i>
+                    <div class="name">施药</div>
+                    <div class="fontclass">.icon-shiyao</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-caizhaiguanli"></i>
+                    <div class="name">采摘管理</div>
+                    <div class="fontclass">.icon-caizhaiguanli</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-left"></i>
+                    <div class="name">向左</div>
+                    <div class="fontclass">.icon-left</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-vip-system"></i>
+                    <div class="name">会员系统</div>
+                    <div class="fontclass">.icon-vip-system</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyao2"></i>
+                    <div class="name">农药</div>
+                    <div class="fontclass">.icon-nongyao2</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-sell-stand"></i>
+                    <div class="name">按标段出售</div>
+                    <div class="fontclass">.icon-sell-stand</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-systemset"></i>
+                    <div class="name">系统设置</div>
+                    <div class="fontclass">.icon-systemset</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-wodedangxuan"></i>
+                    <div class="name">我 的当选</div>
+                    <div class="fontclass">.icon-wodedangxuan</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-sellout-bill"></i>
+                    <div class="name">销售出库单</div>
+                    <div class="fontclass">.icon-sellout-bill</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-users"></i>
+                    <div class="name">用户管理</div>
+                    <div class="fontclass">.icon-users</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-shanchu"></i>
+                    <div class="name">删 除</div>
+                    <div class="fontclass">.icon-shanchu</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-bianlidian"></i>
+                    <div class="name">便利店</div>
+                    <div class="fontclass">.icon-bianlidian</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-miaopu"></i>
+                    <div class="name">苗圃</div>
+                    <div class="fontclass">.icon-miaopu</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-right"></i>
+                    <div class="name">向左</div>
+                    <div class="fontclass">.icon-right</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyaohuafeijiance"></i>
+                    <div class="name">农药化肥检测</div>
+                    <div class="fontclass">.icon-nongyaohuafeijiance</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongyaohuafeijiance1"></i>
+                    <div class="name">农药化肥检测</div>
+                    <div class="fontclass">.icon-nongyaohuafeijiance1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-back"></i>
+                    <div class="name">归还</div>
+                    <div class="fontclass">.icon-back</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-gouwuche1"></i>
+                    <div class="name">购物车</div>
+                    <div class="fontclass">.icon-gouwuche1</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-delete"></i>
+                    <div class="name">删  除</div>
+                    <div class="fontclass">.icon-delete</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-cetushifei4"></i>
+                    <div class="name">测土施肥</div>
+                    <div class="fontclass">.icon-cetushifei4</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-pesticide"></i>
+                    <div class="name">农药</div>
+                    <div class="fontclass">.icon-pesticide</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-nongju"></i>
+                    <div class="name">农具-01</div>
+                    <div class="fontclass">.icon-nongju</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-caizhai2"></i>
+                    <div class="name">采摘</div>
+                    <div class="fontclass">.icon-caizhai2</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-caizhai3"></i>
+                    <div class="name">采摘-2</div>
+                    <div class="fontclass">.icon-caizhai3</div>
+                </li>
+            
+                <li>
+                <i class="icon iconfont icon-penyao"></i>
+                    <div class="name">喷药</div>
+                    <div class="fontclass">.icon-penyao</div>
+                </li>
+            
+        </ul>
+
+        <h2 id="font-class-">font-class引用</h2>
+        <hr>
+
+        <p>font-class是unicode使用方式的一种变种，主要是解决unicode书写不直观，语意不明确的问题。</p>
+        <p>与unicode使用方式相比，具有如下特点：</p>
+        <ul>
+        <li>兼容性良好，支持ie8+，及所有现代浏览器。</li>
+        <li>相比于unicode语意明确，书写更直观。可以很容易分辨这个icon是什么。</li>
+        <li>因为使用class来定义图标，所以当要替换图标时，只需要修改class里面的unicode引用。</li>
+        <li>不过因为本质上还是使用的字体，所以多色图标还是不支持的。</li>
+        </ul>
+        <p>使用步骤如下：</p>
+        <h3 id="-fontclass-">第一步：引入项目下面生成的fontclass代码：</h3>
+
+
+        <pre><code class="lang-js hljs javascript"><span class="hljs-comment">&lt;link rel="stylesheet" type="text/css" href="./iconfont.css"&gt;</span></code></pre>
+        <h3 id="-">第二步：挑选相应图标并获取类名，应用于页面：</h3>
+        <pre><code class="lang-css hljs">&lt;<span class="hljs-selector-tag">i</span> <span class="hljs-selector-tag">class</span>="<span class="hljs-selector-tag">iconfont</span> <span class="hljs-selector-tag">icon-xxx</span>"&gt;&lt;/<span class="hljs-selector-tag">i</span>&gt;</code></pre>
+        <blockquote>
+        <p>"iconfont"是你项目下的font-family。可以通过编辑项目查看，默认是"iconfont"。</p>
+        </blockquote>
+    </div>
+</body>
+</html>

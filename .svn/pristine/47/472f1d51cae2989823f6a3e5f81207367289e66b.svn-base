@@ -1,0 +1,142 @@
+<template>
+    <div class="table">
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                    <span class="mr10">日期：{{listParam.startTime}} - {{listParam.endTime}}</span>
+                    <span class="ml10">入库次数：{{number}}</span>
+                </div>
+                <div align="right" class="search-right">
+                    <el-date-picker v-model="dateValue" type="daterange" align="right" value-format="yyyy-MM-dd" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions" @change="dateChange">
+                    </el-date-picker>
+                    <el-select v-model="listParam.flag" placeholder="入库类型" class="handle-select mr10">
+                        <el-option label="采购入库" value="0"></el-option>
+                        <el-option label="生产入库" value="1"></el-option>
+                        <el-option label="退货入库" value="2"></el-option>
+                    </el-select>
+                    <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                </div>
+            </div>
+            <el-table :data="tableData" border style="width: 100%" v-loading="listLoading" element-loading-text="给我一点时间" class="p-table-center">
+                <el-table-column type="index" :index="indexMethod" fixed align="center" width="50" label="序号"></el-table-column>
+                <el-table-column prop="type" label="商品类别" width="200">
+                </el-table-column>
+                <el-table-column prop="name" label="商品名称" min-width="200" align="left">
+                </el-table-column>
+                <el-table-column prop="specification" label="商品规格" width="200">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.specification }} {{scope.row.smallUnit}} {{scope.row.bigUnit}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="sum" label="入库数量" width="120">
+                </el-table-column>
+                <el-table-column prop="allSum" label="剩余库存" min-width="120">
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    import baseMixin from '../../common/tableBase';
+    export default {
+        mixins: [baseMixin],
+        data() {
+            return {
+                Urls:{
+                    tableList:'/dataAnalyze/getDataTable',
+                },
+                listParam: {
+                    page: 1,
+                    pageSize: 10,
+                    startTime:'2018-05-01',
+                    endTime:'2018-06-30',
+                    flag: '0',
+                },
+                number:'',
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                },
+                dateValue: []
+            }
+        },
+        created() {
+        },
+        watch:{},
+        computed: {},
+        methods: {
+            getTableData() {
+                this.listLoading = true;
+                request({
+                    url:this.Urls.tableList,
+                    method: 'get',
+                    params: this.listParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.tableData = response.data.data.result;
+                        this.number=response.data.data.number;
+                        this.total = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+            dateChange(val){
+                this.listParam.startTime=val[0]
+                this.listParam.endTime=val[1]
+            },
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-box {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .handle-box .search-left{
+        flex: 1;
+        font-size: 14px;
+        color: #555;
+    }
+    .handle-select {
+        width: 150px;
+    }
+    .handle-input {
+        width: 200px;
+        display: inline-block;
+    }
+    .del-dialog-cnt{
+        font-size: 16px;
+        text-align: center
+    }
+</style>

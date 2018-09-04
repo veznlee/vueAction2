@@ -1,0 +1,199 @@
+<template>
+    <div>
+        <el-row>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-green">
+                        <div class="layout-title">
+                            <h4>工作台</h4>
+                        </div>
+                        <div class="layout-content content-green" style="padding-top: 0">
+                            <el-row :gutter="30">
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-1">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/financeAudit',query:{status:'0'}}">
+                                                        <div class="grid-num">{{purchaseAudit}}</div>
+                                                        <div class="grid-tit">待审核采购单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                    <div class="grid-content bg-purple">
+                                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                            <div class="grid-content grid-con-wrap grid-con-2">
+                                                <i class="el-icon-view grid-con-icon"></i>
+                                                <div class="grid-cont-right">
+                                                    <router-link :to="{path:'/financeAudit',query:{status:'0'}}">
+                                                        <div class="grid-num">{{saleAudit}}</div>
+                                                        <div class="grid-tit">待审核销售单</div>
+                                                    </router-link>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </div>
+                                </el-col>
+                                <el-col :md="24" :lg="12" :xl="8" class="mt10">
+                                <div class="grid-content bg-purple">
+                                    <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                        <div class="grid-content grid-con-wrap grid-con-3">
+                                            <i class="el-icon-view grid-con-icon"></i>
+                                            <div class="grid-cont-right">
+                                                <router-link :to="{path:'/financeAudit',query:{status:'0'}}">
+                                                    <div class="grid-num">{{returnAudit}}</div>
+                                                    <div class="grid-tit">待审核退货单</div>
+                                                </router-link>
+                                            </div>
+                                        </div>
+                                    </el-card>
+                                </div>
+                            </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    export default {
+        data() {
+            return {
+                Urls:{
+                    orderList:'/workFlow/countUserTask',
+                    warnStoreList:'/commodity/repertory',
+                    warnOverdueList:'/commodity/due',
+                },
+                warnParam: {
+                    page: 1,
+                    pageSize: 10,
+                    productName:''
+                },
+                warnStoreData:[],
+                warnStoreTotal:'',
+                warnOverdueData:[],
+                warnOverdueTotal:'',
+                orderParam: {},
+                purchaseAudit:'',
+                saleAudit:'',
+                returnAudit:'',
+            }
+        },
+
+        created:function(){
+            this.getOrderData();
+            this.getWarnStore();
+            this.getWarnOverDue();
+        },
+        methods:{
+            getOrderData() {
+                request({
+                    host:1,
+                    url:this.Urls.orderList,
+                    method: 'get',
+                    params: this.orderParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        var resData=response.data.data.user;
+                        console.log(resData)
+                        this.purchaseAudit=resData.financePurchaseInHouse;
+                        this.saleAudit=resData.financeSellOutHouse
+                        this.returnAudit=resData.financeSalesReturnInHouse;
+                    }
+                })
+            },
+            getWarnStore() {
+                this.listLoading = true;
+                request({
+                    url:this.Urls.warnStoreList,
+                    method: 'get',
+                    params: this.warnParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.warnStoreData = response.data.data;
+                        for(var i=0; i<this.warnStoreData.length; i++){
+                            this.warnStoreData[i].imgUrl=this.globe.hostUrl+'/'+this.warnStoreData[i].imgUrl
+                        }
+                        this.warnStoreTotal = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+            getWarnOverDue() {
+                this.listLoading = true;
+                request({
+                    url:this.Urls.warnOverdueList,
+                    method: 'get',
+                    params: this.warnParam
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.warnOverdueData = response.data.data;
+                        for(var i=0; i<this.warnOverdueData.length; i++){
+                            this.warnOverdueData[i].imgUrl=this.globe.hostUrl+'/'+this.warnOverdueData[i].imgUrl
+                        }
+                        this.warnOverdueTotal = response.data.total;
+                        this.listLoading = false
+                    }
+                })
+            },
+        },
+    }
+</script>
+
+<style scoped>
+    .grid-con-wrap {
+        display: flex;
+        align-items: center;
+        height: 100px;
+    }
+    .grid-cont-right {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+    }
+    .grid-num {
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .grid-tit {
+        font-size: 16px;
+        margin-top: 5px;
+        color: #333;
+    }
+    .grid-con-icon {
+        font-size: 50px;
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        line-height: 100px;
+        color: #fff;
+    }
+    .grid-con-1 .grid-con-icon {
+        background: rgb(45, 140, 240);
+    }
+    .grid-con-1 .grid-num {
+        color: rgb(45, 140, 240);
+    }
+    .grid-con-2 .grid-con-icon {
+        background: rgb(100, 213, 114);
+    }
+
+    .grid-con-2 .grid-num {
+        color: rgb(100, 213, 114);
+    }
+    .grid-con-3 .grid-con-icon {
+        background: rgb(242, 94, 67);
+    }
+    .grid-con-3 .grid-num {
+        color: rgb(242, 94, 67);
+    }
+</style>

@@ -1,0 +1,346 @@
+<template>
+    <div class="table">
+        <div class="container">
+            <div class="handle-box">
+                <div class="search-left">
+                    <el-button type="primary" icon="add" @click="handleAdd()">新增</el-button>
+                </div>
+                <div align="right" class="search-right">
+                    <!--<el-select v-model="listParam.roleId" placeholder="选择角色" class="handle-select mr10">
+                        <el-option v-for="item in roleList" :key="item.roleId" :label="item.roleName" :value="item.roleId"></el-option>
+                    </el-select>
+                    <el-select v-model="listParam.roleId" placeholder="选择角色" class="handle-select mr10">
+                        <el-option v-for="item in roleList" :key="item.roleId" :label="item.roleName" :value="item.roleId"></el-option>
+                    </el-select>
+                    <el-select v-model="listParam.roleId" placeholder="选择角色" class="handle-select mr10">
+                        <el-option v-for="item in roleList" :key="item.roleId" :label="item.roleName" :value="item.roleId"></el-option>
+                    </el-select>-->
+                    <el-input v-model="listParam.keyWords" placeholder="联系人/企业名称" @keyup.enter.native="search" class="handle-input mr10"></el-input>
+                    <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                </div>
+            </div>
+            <el-table :data="tableData" border style="width: 100%" v-loading="listLoading" element-loading-text="给我一点时间" class="p-table-center" stripe>
+                <el-table-column type="index" :index="indexMethod" fixed width="50" label="序号"></el-table-column>
+                <el-table-column prop="cpName" label="企业名称" width="280">
+                </el-table-column>
+                <el-table-column prop="type" label="企业性质" width="150">
+                </el-table-column>
+                <el-table-column label="企业地址">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.province }}{{ scope.row.district }}{{ scope.row.county }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="name" label="默认联系人" width="120">
+                </el-table-column>
+                <el-table-column prop="phone" label="默认联系人电话" width="180">
+                </el-table-column>
+                <el-table-column prop="count" label="联系人数量" width="100">
+                </el-table-column>
+                <el-table-column label="操作" align="center" width="180">
+                    <template slot-scope="scope">
+                        <el-button type="success" plain size="small" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+                        <el-button class="wraning" size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listParam.page" :page-sizes="[10,20,30, 40]" :page-size="listParam.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+                </el-pagination>
+            </div>
+        </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="40%" custom-class="mod-el-dialog">
+            <el-row :gutter="20" class="dialogTop mgb20">
+                <el-col :span="12" align="center"><div class="grid-content bg-purple">操作员：张三</div></el-col>
+                <el-col :span="12" align="center"><div class="grid-content bg-purple">操作员电话：18786631878</div></el-col>
+            </el-row>
+            <el-form :rules="rules" ref="form" :model="form" label-width="80px">
+                <el-form-item label="企业名称" prop="cname">
+                    <el-input v-model="form.cname"></el-input>
+                </el-form-item>
+                <el-form-item label="企业性质" prop="ctype">
+                    <el-select v-model="form.ctype" placeholder="企业">
+                        <el-option label="企业" value="0"></el-option>
+                        <el-option label="个人" value="1"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="企业地址" class="area-select">
+                    <el-col :span="8">
+                        <div class="grid-content bg-purple">
+                            <el-select v-model="form.cprovince" @change="getDistrict" placeholder="选择省份">
+                                <el-option v-for="item in proviceList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </div>
+                    </el-col>
+                    <el-col :span="8">
+                        <div class="grid-content bg-purple">
+                            <el-select v-model="form.cdistrict" @change="getCounty" placeholder="选择市州">
+                                <el-option v-for="item in districtList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </div>
+                    </el-col>
+                    <el-col :span="8">
+                        <div class="grid-content bg-purple">
+                            <el-select v-model="form.ccounty" @change="changeValue" placeholder="选择区县">
+                                <el-option v-for="item in countyList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </div>
+                    </el-col>
+                </el-form-item>
+                <el-form-item label="详细地址">
+                    <el-input v-model="form.detailAddress"></el-input>
+                </el-form-item>
+                <el-form-item label="类别描述" prop="cdesc">
+                    <el-table :data="clientData" border style="width: 100%">
+                        <el-table-column label="姓名" width="150">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.cname"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="手机号" width="150">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.phone"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="职位">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.position"></el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column width="200" align="center" :render-header="renderHeader">
+                            <template slot-scope="scope">
+                                <el-button size="mini" type="success" :disabled="disabled" v-model="scope.row.isDef" @click="defaultClient(scope.$index, scope.row)">设为默认联系人</el-button>
+                                <el-button size="mini" type="danger" @click="tableLineDelete(scope.$index, scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="button" @click="editVisible = false">取 消</el-button>
+                <el-button v-if="dialogStatus=='create'" type="primary" @click="addData">确定</el-button>
+                <el-button v-else type="primary" @click="updateData">确 定</el-button>
+
+            </span>
+        </el-dialog>
+        <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteRow">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    import baseMixin from '../../common/tableBase';
+    export default {
+        mixins: [baseMixin],
+        data() {
+            return {
+                Urls:{
+                    tableList:'/zhcccustomer/list',
+                    tableAdd:'/zhcccustomer/addOrUpdate',
+                    tableUpdate:'/zhcccustomer/addOrUpdate',
+                    tableDelete:'/zhcccustomer/remove',
+                    clientList:'/zhcccustomer/selectById'
+                },
+                clientData:[],
+                listParam: {
+                    page: 1,
+                    pageSize: 10,
+                    type: '',
+                    province: '',
+                    district: '',
+                    keyWords:'',
+                    condition:''
+                },
+                form: {
+                    cname: '',
+                    ctype: '',
+                    cprovince: '',
+                    cdistrict : '',
+                    ccounty: '',
+                    detailAddress: '',
+                    customerInfoList:[
+                        {
+                            cname: '',
+                            phone: '',
+                            position: '',
+                            isDef: ''
+                        }
+                    ]
+                },
+                disabled:false,
+            }
+        },
+        created(){
+
+        },
+        computed:{
+
+        },
+        methods:{
+            resetForm() {
+                this.form = {
+                    cname: '',
+                    ctype: '',
+                    cprovince: '',
+                    cdistrict : '',
+                    ccounty: '',
+                    detailAddress: '',
+                    customerInfoList:[]
+                }
+            },
+            //表单添加
+            handleAdd(){
+                this.formTitle='添加';
+                this.resetForm();
+                this.dialogStatus = 'create';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                })
+            },
+            addData(){
+                this.$refs['form'].validate((valid) => {
+                    if(valid){
+                        var data=this.form;
+                        for(let i = 0; i < this.clientData.length; i++){
+                            this.form.customerInfoList[i]=
+                                {
+                                    cname:this.clientData[i].cname,
+                                    phone:this.clientData[i].phone,
+                                    position:this.clientData[i].position,
+                                    isDef:'1',
+                                }
+                        }
+                        console.log(this.form.customerInfoList)
+                        request({
+                            url:this.Urls.tableAdd,
+                            method: 'post',
+                            data
+                        }).then(response => {
+                            if(response.data.code==0){
+                                this.getTableData();
+                                this.editVisible = false;
+                                this.$notify({
+                                    title: '成功',
+                                    message: '创建成功',
+                                    type: 'success',
+                                    duration: 2000
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            defaultClient: function (index, row) {
+
+            },
+            //表单编辑
+            handleUpdate(index, row) {
+                this.formTitle='编辑';
+                this.idx = index;
+                const item=this.tableData[index]
+                const guid = this.tableData[index].guid;
+                this.form= {
+                    guid:item.guid,
+                    cname:item.cname,
+                    ctype:item.ctype,
+                    cprovince:this.form.cprovince,
+                    cdistrict:this.form.cdistrict ,
+                    ccounty:this.form.ccounty,
+                    detailAddress:item.detailAddress,
+                    customerInfoList:[]
+                }
+                this.form.cname=this.tableData[index].name;
+                this.getClientList(guid);
+                this.dialogStatus = 'update';
+                this.editVisible = true;
+                this.$nextTick(() => {
+                    this.$refs['form'].clearValidate()
+                });
+
+            },
+            getClientList(guid){
+                request({
+                    url:this.Urls.clientList,
+                    method: 'get',
+                    params: {guid: guid}
+                }).then(response => {
+                    this.clientData=response.data.data.customerInfoList;
+                    for(let i = 0; i < this.clientData.length; i++){
+                        this.form.customerInfoList[i]=
+                            {
+                                cname:this.clientData[i].cname,
+                                phone:this.clientData[i].phone,
+                                position:this.clientData[i].position,
+                                isDef:this.clientData[i].isDef,
+                            }
+                    }
+                })
+            },
+            // 保存编辑
+            updateData() {
+                var data=this.form
+                request({
+                    url:this.Urls.tableUpdate,
+                    method: 'post',
+                    data
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.getTableData();
+                        this.editVisible = false;
+                        this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                    }
+                })
+            },
+            //添加按钮
+            renderHeader(h) {
+                return h('el-button', {
+                    domProps: {
+                        innerHTML: '添加'
+                    },
+                    on: {
+                        click: this.tableLineAdd
+                    }
+                })
+            },
+            tableLineAdd(){
+                this.clientData.unshift(this.form.customerInfoList);
+                this.form.customerInfoList=[]
+            },
+            tableLineDelete(index, row){
+                this.clientData.splice(index,1);
+                this.form.customerInfoList[index]=''
+            },
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-box {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .handle-box .search-right{
+        flex: 1;
+    }
+    .handle-select {
+        width: 120px;
+    }
+    .handle-input {
+        width: 300px;
+        display: inline-block;
+    }
+    .del-dialog-cnt{
+        font-size: 16px;
+        text-align: center
+    }
+</style>

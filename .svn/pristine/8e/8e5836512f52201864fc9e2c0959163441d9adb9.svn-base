@@ -1,0 +1,106 @@
+<template>
+    <div class="table">
+        <div class="handle-box">
+            <div class="search-left">
+                <router-link :to="{path:'/storeView'}"><el-button type="info" icon="el-icon-back">返回</el-button></router-link>
+            </div>
+        </div>
+        <el-row :gutter="30">
+            <el-col :span="24">
+                <div class="layout-content layout-independent content-blue">
+                    <div class="box-title">
+                        <h4>{{this.$route.query.storeName}}</h4>
+                    </div>
+                    <div class="box-content">
+                        <div class="goods-box">
+                            <el-row :gutter="15">
+                                <el-col :xl="24">
+                                    <div class="grid-content bg-purple">
+                                        <div class="layout-wrap layout-blue">
+                                            <div class="layout-title">
+                                                <h4>区域名称</h4>
+                                            </div>
+                                            <div class="layout-content content-blue" style="position: relative; padding-bottom: 0;">
+                                                <el-row :gutter="30">
+                                                    <el-col :lg="6" :xl="4" v-for="(item,index) in storeUseList" :key="index">
+                                                        <div class="grid-content bg-purple">
+                                                            <div class="box-content" style="border-top: 1px solid #99cef2; margin-bottom: 15px">
+                                                                <div class="iconShow">
+                                                                    <div class="iconItem" style="flex:0.8; position: absolute; right: 5px; top: 5px" v-show="item.code==1">
+                                                                        <i class="el-icon-warning" style="font-size: 30px; color:red;"></i>
+                                                                    </div>
+                                                                    <div class="iconItem" style="flex:1; text-align: center">
+                                                                        <p class="circle"><el-progress type="circle" :percentage="item.used" color="#41a1e3" :stroke-width="5" :width="80"></el-progress></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    import request from '../../../utils/request'
+    import baseMixin from '../../common/tableBase';
+    export default {
+        mixins: [baseMixin],
+        data() {
+            return {
+                Urls:{
+                    tableList:'/zhccstore/showStoreById',
+                },
+                storeId:this.$route.query.storeId,
+                storeUseList:[]
+            }
+        },
+        created() {},
+        activated(){
+            this.storeId=this.$route.query.storeId
+            this.getTableData();
+        },
+        computed: {},
+        methods: {
+            getTableData() {
+                request({
+                    url:this.Urls.tableList,
+                    method: 'get',
+                    params: {storeId:this.storeId}
+                }).then(response => {
+                    if(response.data.code==0){
+                        this.storeUseList = response.data.data;
+                    }
+                })
+            },
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-date{
+        width: 120px;
+    }
+    .storeName{
+        font-size: 26px;
+    }
+    .box-content .iconShow .iconItem p.circle{
+        margin-bottom: -5px;
+    }
+    .box-content .iconShow{
+        position: relative;
+        height: 110px;
+    }
+    .content-blue .iconShow .iconItem i{
+        font-size: 80px;
+    }
+</style>

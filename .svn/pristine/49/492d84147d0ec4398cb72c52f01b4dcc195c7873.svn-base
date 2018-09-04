@@ -1,0 +1,72 @@
+import request from '../utils/request'
+
+//tableData
+export function tableList(param) {
+    return request({
+        url: '/zhccproduct/list',
+        method: 'get',
+        params: param
+    })
+}
+export function tableAdd(data) {
+    return request({
+        url: '/zhccproduct/addOrUpdate',
+        method: 'post',
+        data
+    })
+}
+export function tableUpdate(data) {
+    return request({
+        url: '/zhccproduct/addOrUpdate',
+        method: 'post',
+        data
+    })
+}
+export function tableDelete(param) {
+    return request({
+        url: '/zhccproduct/remove',
+        method: 'get',
+        params: param
+    })
+}
+
+//下拉菜单列表
+export function typeList(param) {
+    return request({
+        url: '/zhccproduct/type',
+        method: 'get',
+        params: {param}
+    })
+}
+//状态
+export function statusList(param) {
+    return request({
+        url: '/zhccproduct/cstatus',
+        method: 'get',
+        params: param
+    })
+}
+//单位读取
+export function unitList(param) {
+    return request({
+        url: '/sysparameters/list',
+        method: 'get',
+        params: param
+    })
+}
+//详情读取
+export function tableDetail(param) {
+    return request({
+        url: '/zhccproduct/selectById',
+        method: 'get',
+        params: param
+    })
+}
+//名字重复验证
+export function isNameRepeat(param) {
+    return request({
+        url: '/zhccproduct/isExist',
+        method: 'get',
+        params: param
+    })
+}

@@ -1,0 +1,59 @@
+<template>
+    <div class="sidebar">
+        <el-scrollbar style="height: calc(100% - 15px)">
+            <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#fff"
+                     text-color="#82b11b" active-text-color="#fff" unique-opened router>
+                <side-bar-item v-for="(item, n) in items" :item="item" :navIndex="String(n)" :key="n"></side-bar-item>
+            </el-menu>
+        </el-scrollbar>
+    </div>
+</template>
+
+<script>
+    import bus from '../common/bus';
+    import sideBarItem from '../common/sideBarItem';
+    import { menuList} from '../../api/interface'
+    export default {
+        data() {
+            return {
+                collapse: false,
+                param:{},
+                items:[]
+            }
+        },
+        methods:{
+            getMenu() {
+                menuList(this.param).then(response => {
+                    this.items = response.data.data;
+                })
+            },
+        },
+        components: { sideBarItem },
+        computed:{
+            onRoutes(){
+                return this.$route.path.replace('/','');
+            }
+        },
+        created(){
+            this.getMenu();
+            // 通过 Event Bus 进行组件间通信，来折叠侧边栏
+            bus.$on('collapse', msg => {
+                this.collapse = msg;
+            })
+        }
+    }
+</script>
+
+<style scoped>
+    .sidebar{
+        display: block;
+        position: absolute;
+        left: 50px;
+        top: 125px;
+        bottom:0;
+    }
+    .sidebar-el-menu:not(.el-menu--collapse){
+        width: 185px;
+    }
+    .sidebar > ul {}
+</style>

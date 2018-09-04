@@ -1,0 +1,14 @@
+<template>
+
+</template>
+
+<script>
+    let accessToken = localStorage.getItem('accessToken');
+    export default {
+        accessToken
+    }
+</script>
+
+<style scoped>
+
+</style>

@@ -1,0 +1,156 @@
+<template>
+    <div class="table">
+        <div class="crumbs">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item><i class="el-icon-tickets"></i> 仓库查看</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <el-row>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-blue">
+                        <div class="layout-title">
+                            <h4>仓库</h4>
+                        </div>
+                        <div class="layout-content content-blue">
+                            <el-row :gutter="30">
+                                <el-col :span="8">
+                                    <div class="grid-content bg-purple">
+                                        <div class="box-title">
+                                            <h4>1号仓库</h4>
+                                        </div>
+                                        <div class="box-content">
+                                            <div class="iconShow">
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-success"></i></p>
+                                                    <span>25种商品</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p><i class="el-icon-date"></i></p>
+                                                    <span>温度25度</span>
+                                                </div>
+                                                <div class="iconItem">
+                                                    <p class="circle"><el-progress type="circle" :percentage="80" color="#41a1e3" :stroke-width="4" :width="70"></el-progress></p>
+                                                    <span>库存量</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+            <el-col :span="24">
+                <div class="grid-content bg-purple-dark">
+                    <div class="layout-wrap layout-green">
+                        <div class="layout-title">
+                            <h4>采购统计</h4>
+                            <div class="layout-title-r">
+                                <el-date-picker v-model="value4" type="month" placeholder="选择月" class="handle-date"></el-date-picker>
+                                <el-date-picker v-model="value5" type="year" placeholder="选择年" class="handle-date"></el-date-picker>
+                            </div>
+                        </div>
+                        <div class="layout-content content-blue">
+                            <el-row :gutter="15">
+                                <el-col :span="19">
+                                    <div class="grid-content bg-purple">
+                                        <div id="main" style="width: 100%; height: 350px"></div>
+                                    </div>
+                                </el-col>
+                                <el-col :span="5">
+                                    <div class="grid-content bg-purple">
+                                        <div class="showBox">
+                                            <div class="show-title">供应商信息</div>
+                                            <div class="show-content">
+                                                <ul>
+                                                    <li>新增：25</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+    var echarts = require('echarts');
+    import request from '../../../utils/request'
+    export default {
+        data() {
+            return {
+                Urls:{
+                    tableList:'/zhccstore/list',
+                    tableAdd:'/zhccstore/add',
+                    tableUpdate:'/zhccstore/update',
+                    tableDelete:'/zhccstore/delete',
+                    storeList:'/zhccstore/selectById',
+                    storeTypeList:'/sysparameters/list',
+                    storeDelete:'/zhccstore/update'
+                },
+                value4: '',
+                value5: '',
+            }
+        },
+        created() {
+
+        },
+        mounted(){
+            var myChart = echarts.init(document.getElementById('main'));
+            myChart.setOption({
+                color:['#A6CF4C', '#fb8b2f'],
+                tooltip: {},
+                legend: {
+                    data:['销量','已执行'],
+                },
+                grid: {
+                    top:'10%',
+                    left: '0',
+                    right: '0',
+                    bottom: '0',
+                    containLabel: true
+                },
+                xAxis: {
+                    axisLine: {
+                        show: false
+                    },
+                    axisTick:{
+                        show:false
+                    },
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                },
+                yAxis: {},
+                series: [
+                    {
+                        name: '销量',
+                        type: 'bar',
+                        data: [5, 20, 36, 10, 10, 20, 5, 20, 36, 10, 10, 20]
+                    },
+                    {
+                        name: '已执行',
+                        type: 'bar',
+                        data: [5, 20, 36, 10, 10, 20, 5, 20, 36, 10, 10, 20]
+                    }
+                ]
+            });
+        },
+        watch:{},
+        computed: {},
+        methods: {
+
+        }
+    }
+</script>
+
+<style scoped>
+    .handle-date{
+        width: 120px;
+    }
+</style>
